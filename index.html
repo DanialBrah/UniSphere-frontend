@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>unisphere-frontend</title>
+    <meta name="description" content="The all-in-one campus super-app for students, alumni, and university communities." />
+    <title>UniSphere</title>
+    <script>
+      try {
+        const s = localStorage.getItem('unisphere-theme')
+        if (s && JSON.parse(s)?.state?.isDark) {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (_) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

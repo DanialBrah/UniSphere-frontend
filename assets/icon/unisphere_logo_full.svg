@@ -1,0 +1,40 @@
+<svg width="600" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="160" fill="white"/>
+  <!-- Globe background fill -->
+  <circle cx="80" cy="80" r="65" fill="#EDE9FE" opacity="0.4"/>
+  <!-- Outer circle -->
+  <circle cx="80" cy="80" r="65" fill="none" stroke="#7C3AED" stroke-width="2"/>
+  <!-- Latitude lines -->
+  <ellipse cx="80" cy="80" rx="65" ry="17" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.55"/>
+  <ellipse cx="80" cy="52" rx="50" ry="11" fill="none" stroke="#9333EA" stroke-width="1" opacity="0.4"/>
+  <ellipse cx="80" cy="108" rx="50" ry="11" fill="none" stroke="#9333EA" stroke-width="1" opacity="0.4"/>
+  <!-- Longitude lines -->
+  <ellipse cx="80" cy="80" rx="17" ry="65" fill="none" stroke="#7C3AED" stroke-width="1.5" opacity="0.55"/>
+  <ellipse cx="80" cy="80" rx="40" ry="65" fill="none" stroke="#9333EA" stroke-width="1" opacity="0.3"/>
+  <!-- Network connection lines -->
+  <line x1="80" y1="15" x2="137" y2="47" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <line x1="137" y1="47" x2="137" y2="113" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <line x1="137" y1="113" x2="80" y2="145" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <line x1="80" y1="145" x2="23" y2="113" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <line x1="23" y1="113" x2="23" y2="47" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <line x1="23" y1="47" x2="80" y2="15" stroke="#7C3AED" stroke-width="1" opacity="0.45"/>
+  <!-- Cross diagonals -->
+  <line x1="23" y1="47" x2="137" y2="113" stroke="#9333EA" stroke-width="0.8" opacity="0.4"/>
+  <line x1="137" y1="47" x2="23" y2="113" stroke="#9333EA" stroke-width="0.8" opacity="0.4"/>
+  <!-- Network nodes -->
+  <circle cx="80" cy="15" r="7" fill="#6B21A8"/>
+  <circle cx="137" cy="47" r="6" fill="#7C3AED"/>
+  <circle cx="137" cy="113" r="6" fill="#7C3AED"/>
+  <circle cx="80" cy="145" r="7" fill="#6B21A8"/>
+  <circle cx="23" cy="113" r="6" fill="#7C3AED"/>
+  <circle cx="23" cy="47" r="6" fill="#7C3AED"/>
+  <!-- Center node -->
+  <circle cx="80" cy="80" r="12" fill="#6B21A8"/>
+  <circle cx="80" cy="80" r="6" fill="white"/>
+  <!-- Wordmark -->
+  <text x="168" y="90" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="54" font-weight="800" letter-spacing="-2" fill="#6B21A8">Uni</text>
+  <text x="284" y="90" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="54" font-weight="800" letter-spacing="-2" fill="#9333EA">sphere</text>
+  <!-- Tagline -->
+  <text x="169" y="115" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="12" font-weight="400" letter-spacing="4" fill="#A855F7">CAMPUS CONNECTED</text>
+  <rect x="169" y="123" width="285" height="2.5" rx="1.25" fill="#7C3AED" opacity="0.3"/>
+</svg>
