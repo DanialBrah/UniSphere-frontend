@@ -30,7 +30,7 @@ export function LoginForm() {
   }, [error])
 
   return (
-    <div className="space-y-5">
+    <form className="space-y-5" onSubmit={handleSubmit((data) => mutate(data))}>
       {/* Email */}
       <div>
         <Label>Email address</Label>
@@ -78,8 +78,7 @@ export function LoginForm() {
 
       {/* Submit */}
       <button
-        type="button"
-        onClick={handleSubmit((data) => mutate(data))}
+        type="submit"
         disabled={isPending}
         className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
       >
@@ -96,6 +95,6 @@ export function LoginForm() {
           Create one
         </Link>
       </p>
-    </div>
+    </form>
   )
 }

@@ -19,11 +19,11 @@ export const studentSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
   matricNumber: z.string().min(1, 'Matric number is required'),
   universityEmail: z.string().email('Invalid email').optional().or(z.literal('')),
-  universityId: z.number().optional(),
+  universityId: z.preprocess(val => val === '' ? undefined : val, z.coerce.number().positive().optional()),
   phone,
   faculty: z.string().optional(),
   program: z.string().optional(),
-  yearOfStudy: z.number().optional(),
+  yearOfStudy: z.preprocess(val => val === '' ? undefined : val, z.coerce.number().min(1).max(10).optional()),
 })
 
 export const alumniSchema = z.object({
@@ -31,7 +31,7 @@ export const alumniSchema = z.object({
   password,
   fullName: z.string().min(2, 'Full name is required'),
   graduationYear: z.string().regex(/^\d{4}$/, 'Must be a 4-digit year (e.g. 2022)'),
-  universityId: z.number().optional(),
+  universityId: z.preprocess(val => val === '' ? undefined : val, z.coerce.number().positive().optional()),
   phone,
   degree: z.string().optional(),
   major: z.string().optional(),

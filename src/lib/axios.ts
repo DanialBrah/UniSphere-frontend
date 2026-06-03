@@ -44,6 +44,13 @@ api.interceptors.response.use(
     if (!originalRequest) return Promise.reject(error)
     if (error.response?.status !== 401 || originalRequest._retry) return Promise.reject(error)
 
+    // Skip refresh logic for auth endpoints
+    const url = originalRequest.url || ''
+    const method = originalRequest.method?.toUpperCase()
+    if (method === 'POST' && (url.endsWith('/auth/login') || url.startsWith('/auth/register'))) {
+      return Promise.reject(error)
+    }
+
     const store = useAuthStore.getState()
 
     if (!store.refreshToken) {

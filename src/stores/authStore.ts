@@ -37,13 +37,14 @@ export const useAuthStore = create<AuthStore>()(
       name: 'unisphere-auth',
       partialize: (state) => ({
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           state._setHydrated()
-          if (state.user) state.role = state.user.role
+          if (state.user) {
+            useAuthStore.setState({ role: state.user.role })
+          }
         }
       },
     },

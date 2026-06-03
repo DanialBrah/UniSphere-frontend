@@ -21,7 +21,7 @@ export function StudentForm({ onBack }: { onBack: () => void }) {
   useEffect(() => { if (error) toast.error(getErrorMessage(error)) }, [error])
 
   return (
-    <div className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
       <div>
         <Label>Full name *</Label>
         <input {...register('fullName')} placeholder="Jane Smith" className={inputClass(!!errors.fullName)} />
@@ -63,18 +63,19 @@ export function StudentForm({ onBack }: { onBack: () => void }) {
         </div>
         <div>
           <Label>Year of study</Label>
-          <input {...register('yearOfStudy', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })} type="number" min={1} max={10} placeholder="2" className={inputClass(false)} />
+          <input {...register('yearOfStudy', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })} type="number" min={1} max={10} placeholder="2" aria-invalid={!!errors.yearOfStudy} className={inputClass(!!errors.yearOfStudy)} />
+          <FieldError message={errors.yearOfStudy?.message} />
         </div>
       </OptionalSection>
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onBack} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2D1F4D] text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
           <ArrowLeft size={14} /> Back
         </button>
-        <button type="button" onClick={handleSubmit((d) => mutate(d))} disabled={isPending} className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+        <button type="submit" disabled={isPending} className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
           {isPending && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
           {isPending ? 'Creating account…' : 'Create account'}
         </button>
       </div>
-    </div>
+    </form>
   )
 }

@@ -9,9 +9,9 @@ export function FieldError({ message }: { message?: string }) {
   return <p className="mt-1.5 text-xs text-red-500">{message}</p>
 }
 
-export function Label({ children }: { children: ReactNode }) {
+export function Label({ children, htmlFor }: { children: ReactNode; htmlFor?: string }) {
   return (
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
       {children}
     </label>
   )
@@ -64,10 +64,10 @@ export function OptionalSection({ children }: { children: ReactNode }) {
   )
 }
 
-export function SubmitButton({ isPending, label = 'Create account' }: { isPending: boolean; label?: string }) {
+export function SubmitButton({ isPending, label = 'Create account', type = 'submit' }: { isPending: boolean; label?: string; type?: 'button' | 'submit' | 'reset' }) {
   return (
     <button
-      type="button"
+      type={type}
       disabled={isPending}
       className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
     >

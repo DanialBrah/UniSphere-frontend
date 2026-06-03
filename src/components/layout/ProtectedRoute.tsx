@@ -3,8 +3,9 @@ import { useAuth } from '../../hooks/useAuth'
 
 function PageSpinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0F0A1A]">
-      <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0F0A1A]" role="status" aria-live="polite">
+      <span className="sr-only">Loading…</span>
+      <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
     </div>
   )
 }
