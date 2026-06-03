@@ -21,7 +21,7 @@ export function EmployerForm({ onBack }: { onBack: () => void }) {
   useEffect(() => { if (error) toast.error(getErrorMessage(error)) }, [error])
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
+    <form noValidate className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
       <div>
         <Label>Company name *</Label>
         <input {...register('companyName')} placeholder="Acme Corporation" className={inputClass(!!errors.companyName)} />

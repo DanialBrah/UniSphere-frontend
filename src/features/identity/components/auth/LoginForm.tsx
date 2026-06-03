@@ -30,7 +30,7 @@ export function LoginForm() {
   }, [error])
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit((data) => mutate(data))}>
+    <form noValidate className="space-y-5" onSubmit={handleSubmit((data) => mutate(data))}>
       {/* Email */}
       <div>
         <Label>Email address</Label>

@@ -21,7 +21,7 @@ export function ClubForm({ onBack }: { onBack: () => void }) {
   useEffect(() => { if (error) toast.error(getErrorMessage(error)) }, [error])
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
+    <form noValidate className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
       <div>
         <Label>Club name *</Label>
         <input {...register('name')} placeholder="Computer Science Society" className={inputClass(!!errors.name)} />

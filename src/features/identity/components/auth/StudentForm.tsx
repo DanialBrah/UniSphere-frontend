@@ -21,7 +21,7 @@ export function StudentForm({ onBack }: { onBack: () => void }) {
   useEffect(() => { if (error) toast.error(getErrorMessage(error)) }, [error])
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
+    <form noValidate className="space-y-4" onSubmit={handleSubmit((d) => mutate(d))}>
       <div>
         <Label>Full name *</Label>
         <input {...register('fullName')} placeholder="Jane Smith" className={inputClass(!!errors.fullName)} />
