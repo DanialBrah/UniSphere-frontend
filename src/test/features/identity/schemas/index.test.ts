@@ -5,6 +5,8 @@ import {
   alumniSchema,
   employerSchema,
   clubSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 } from '../../../../features/identity/schemas/index'
 
 // ── loginSchema ───────────────────────────────────────────────────────────────
@@ -169,5 +171,53 @@ describe('clubSchema', () => {
 
   it('fails when password is shorter than 8 characters', () => {
     expect(clubSchema.safeParse({ ...valid, password: 'short' }).success).toBe(false)
+  })
+})
+
+// ── forgotPasswordSchema ──────────────────────────────────────────────────────
+describe('forgotPasswordSchema', () => {
+  it('passes with a valid email', () => {
+    expect(forgotPasswordSchema.safeParse({ email: 'user@uni.edu' }).success).toBe(true)
+  })
+
+  it('fails when email is empty', () => {
+    expect(forgotPasswordSchema.safeParse({ email: '' }).success).toBe(false)
+  })
+
+  it('fails when email is not a valid format', () => {
+    expect(forgotPasswordSchema.safeParse({ email: 'notanemail' }).success).toBe(false)
+  })
+})
+
+// ── resetPasswordSchema ───────────────────────────────────────────────────────
+describe('resetPasswordSchema', () => {
+  it('passes when both passwords match and meet length requirements', () => {
+    expect(
+      resetPasswordSchema.safeParse({ newPassword: 'password123', confirmPassword: 'password123' }).success,
+    ).toBe(true)
+  })
+
+  it('fails when passwords do not match', () => {
+    const result = resetPasswordSchema.safeParse({
+      newPassword: 'password123',
+      confirmPassword: 'different1',
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].path).toContain('confirmPassword')
+      expect(result.error.issues[0].message).toBe('Passwords do not match')
+    }
+  })
+
+  it('fails when newPassword is shorter than 8 characters', () => {
+    expect(
+      resetPasswordSchema.safeParse({ newPassword: 'short', confirmPassword: 'short' }).success,
+    ).toBe(false)
+  })
+
+  it('fails when confirmPassword is shorter than 8 characters', () => {
+    expect(
+      resetPasswordSchema.safeParse({ newPassword: 'password123', confirmPassword: 'short' }).success,
+    ).toBe(false)
   })
 })

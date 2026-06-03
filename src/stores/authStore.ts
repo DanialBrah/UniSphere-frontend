@@ -1,13 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { queryClient } from '../lib/queryClient'
-import type { UserProfileResponse, UserRole } from '../features/identity/types/auth'
+import type { UserProfileResponse } from '../features/identity/types/auth'
 
 interface AuthStore {
   accessToken: string | null
   refreshToken: string | null
   user: UserProfileResponse | null
-  role: UserRole | null
   isHydrated: boolean
   setAuth: (accessToken: string, refreshToken: string, user: UserProfileResponse) => void
   logout: () => void
@@ -20,14 +19,13 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: null,
       refreshToken: null,
       user: null,
-      role: null,
       isHydrated: false,
 
       setAuth: (accessToken, refreshToken, user) =>
-        set({ accessToken, refreshToken, user, role: user.role }),
+        set({ accessToken, refreshToken, user }),
 
       logout: () => {
-        set({ accessToken: null, refreshToken: null, user: null, role: null })
+        set({ accessToken: null, refreshToken: null, user: null })
         queryClient.clear()
       },
 
@@ -40,12 +38,9 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          state._setHydrated()
-          if (state.user) {
-            useAuthStore.setState({ role: state.user.role })
-          }
-        }
+        // state is the live store snapshot (includes all actions)
+        // Optional chaining handles the rare error/undefined case
+        state?._setHydrated?.()
       },
     },
   ),

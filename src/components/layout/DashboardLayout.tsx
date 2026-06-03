@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { LucideIcon } from 'lucide-react'
 import {
@@ -11,6 +11,8 @@ import {
 import { Logo } from '../ui/Logo'
 import { useAuth } from '../../hooks/useAuth'
 import { useThemeStore } from '../../stores/themeStore'
+import { useLogout } from '../../features/identity/hooks/useLogout'
+import { useAuthStore } from '../../stores/authStore'
 import type { UserProfileResponse } from '../../features/identity/types/auth'
 
 interface NavItem {
@@ -75,16 +77,71 @@ const ROLE_COLOR: Record<string, string> = {
   ADMIN:      'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 }
 
+function LogoutModal({ onConfirm, onCancel, isPending }: {
+  onConfirm: () => void
+  onCancel: () => void
+  isPending: boolean
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onCancel() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onCancel])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white dark:bg-[#130D22] rounded-2xl border border-gray-200 dark:border-[#2D1F4D] shadow-xl p-6 w-full max-w-sm"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20 mx-auto mb-4">
+          <LogOut size={22} className="text-red-500" />
+        </div>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white text-center mb-1">
+          Sign out?
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">
+          You will need to sign in again to access your account.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={isPending}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-[#2D1F4D] text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isPending}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isPending && (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            )}
+            {isPending ? 'Signing out…' : 'Sign out'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface Props {
   children: React.ReactNode
 }
 
 export function DashboardLayout({ children }: Props) {
   const [collapsed, setCollapsed] = useState(false)
-  const { user, logout } = useAuth()
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const { user } = useAuth()
   const { isDark, toggle } = useThemeStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const logoutMutation = useLogout()
 
   const name = user ? displayName(user) : ''
   const initials = getInitials(name)
@@ -92,9 +149,17 @@ export function DashboardLayout({ children }: Props) {
 
   const groups = [...new Set(NAV_ITEMS.map((i) => i.group ?? ''))]
 
-  function handleLogout() {
-    logout()
-    navigate('/login', { replace: true })
+  function confirmLogout() {
+    const { refreshToken } = useAuthStore.getState()
+    if (refreshToken) {
+      logoutMutation.mutate(
+        { refreshToken },
+        { onSettled: () => navigate('/login', { replace: true }) },
+      )
+    } else {
+      useAuthStore.getState().logout()
+      navigate('/login', { replace: true })
+    }
   }
 
   function isActive(to: string) {
@@ -205,7 +270,7 @@ export function DashboardLayout({ children }: Props) {
             {!collapsed && <span>{isDark ? 'Light mode' : 'Dark mode'}</span>}
           </button>
           <button
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             title="Logout"
             className={`flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors ${collapsed ? 'justify-center' : ''}`}
           >
@@ -219,6 +284,14 @@ export function DashboardLayout({ children }: Props) {
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
+
+      {showLogoutModal && (
+        <LogoutModal
+          onConfirm={confirmLogout}
+          onCancel={() => setShowLogoutModal(false)}
+          isPending={logoutMutation.isPending}
+        />
+      )}
     </div>
   )
 }
