@@ -6,7 +6,8 @@ import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
 import { useRegister } from '../../hooks/useRegister'
 import { clubSchema, type ClubFormData } from '../../schemas'
-import { inputClass, FieldError, Label, PasswordInput, OptionalSection } from './FormPrimitives'
+import { inputClass } from './formUtils'
+import { FieldError, Label, PasswordInput, OptionalSection } from './FormPrimitives'
 import { getErrorMessage } from '../../../../lib/utils'
 
 export function ClubForm({ onBack }: { onBack: () => void }) {

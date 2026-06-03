@@ -6,7 +6,8 @@ import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import { useLogin } from '../../hooks/useLogin'
 import { loginSchema, type LoginFormData } from '../../schemas'
-import { inputClass, FieldError, Label } from './FormPrimitives'
+import { inputClass } from './formUtils'
+import { FieldError, Label } from './FormPrimitives'
 import { getErrorMessage } from '../../../../lib/utils'
 
 export function LoginForm() {

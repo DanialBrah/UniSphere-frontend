@@ -1,4 +1,4 @@
-import axios, { type AxiosError } from 'axios'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
 import { queryClient } from './queryClient'
 
@@ -35,7 +35,7 @@ function drainQueue(token: string | null, error: unknown) {
   failedQueue.length = 0
 }
 
-type RetryConfig = typeof api.defaults & { _retry?: boolean }
+type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 
 api.interceptors.response.use(
   (response) => response,
@@ -55,7 +55,6 @@ api.interceptors.response.use(
       return new Promise<string>((resolve, reject) => {
         failedQueue.push({ resolve, reject })
       }).then((token) => {
-        originalRequest.headers ??= {}
         originalRequest.headers.Authorization = `Bearer ${token}`
         originalRequest._retry = true
         return api(originalRequest)
@@ -80,7 +79,6 @@ api.interceptors.response.use(
       const data = envelope.data
       useAuthStore.getState().setAuth(data.accessToken, data.refreshToken, data.user)
       drainQueue(data.accessToken, null)
-      originalRequest.headers ??= {}
       originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
       return api(originalRequest)
     } catch (refreshError) {

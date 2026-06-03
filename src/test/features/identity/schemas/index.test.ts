@@ -157,8 +157,9 @@ describe('clubSchema', () => {
   })
 
   it('fails when universityId is missing', () => {
-    const { universityId: _, ...rest } = valid
-    expect(clubSchema.safeParse(rest).success).toBe(false)
+    expect(
+      clubSchema.safeParse({ email: valid.email, password: valid.password, name: valid.name }).success,
+    ).toBe(false)
   })
 
   it('fails when universityId is zero or negative', () => {
