@@ -151,3 +151,16 @@ export interface RegisterClubRequest {
   category?: string
   description?: string
 }
+
+export interface LogoutRequest {
+  refreshToken: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  newPassword: string
+}

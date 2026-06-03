@@ -10,11 +10,15 @@ import type { AuthResponse, LoginRequest } from '../../../../../features/identit
 vi.mock('../../../../../features/identity/hooks/useLogin', () => ({ useLogin: vi.fn() }))
 vi.mock('sonner', () => ({ toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() } }))
 
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>()
+  return { ...actual, useNavigate: () => mockNavigate }
+})
+
 import { useLogin } from '../../../../../features/identity/hooks/useLogin'
-import { toast } from 'sonner'
 
 const mockedUseLogin = vi.mocked(useLogin)
-const mockedToast   = vi.mocked(toast)
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 type LoginMutation = UseMutationResult<AuthResponse, Error, LoginRequest>
@@ -121,10 +125,10 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled()
   })
 
-  it('shows a toast when Forgot password is clicked', () => {
+  it('navigates to /forgot-password when Forgot password is clicked', () => {
     renderForm()
     fireEvent.click(screen.getByText('Forgot password?'))
-    expect(mockedToast.info).toHaveBeenCalledWith('Password reset coming soon')
+    expect(mockNavigate).toHaveBeenCalledWith('/forgot-password')
   })
 
   it('toggles password visibility when the eye icon button is clicked', () => {

@@ -50,7 +50,7 @@ export function LoginForm() {
           <Label>Password</Label>
           <button
             type="button"
-            onClick={() => toast.info('Password reset coming soon')}
+            onClick={() => navigate('/forgot-password')}
             className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
           >
             Forgot password?

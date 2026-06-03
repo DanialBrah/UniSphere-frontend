@@ -1,9 +1,18 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { ProtectedRoute } from '../components/layout/ProtectedRoute'
 
+function PageSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0F0A1A]">
+      <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
+    HydrateFallback: PageSpinner,
     lazy: async () => {
       const { default: Component } = await import('../features/identity/pages/LandingPage')
       return { Component }
@@ -11,6 +20,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
+    HydrateFallback: PageSpinner,
     lazy: async () => {
       const { default: Component } = await import('../features/identity/pages/LoginPage')
       return { Component }
@@ -18,13 +28,31 @@ export const router = createBrowserRouter([
   },
   {
     path: '/register',
+    HydrateFallback: PageSpinner,
     lazy: async () => {
       const { default: Component } = await import('../features/identity/pages/RegisterPage')
       return { Component }
     },
   },
   {
+    path: '/forgot-password',
+    HydrateFallback: PageSpinner,
+    lazy: async () => {
+      const { default: Component } = await import('../features/identity/pages/ForgotPasswordPage')
+      return { Component }
+    },
+  },
+  {
+    path: '/reset-password',
+    HydrateFallback: PageSpinner,
+    lazy: async () => {
+      const { default: Component } = await import('../features/identity/pages/ResetPasswordPage')
+      return { Component }
+    },
+  },
+  {
     element: <ProtectedRoute />,
+    HydrateFallback: PageSpinner,
     children: [
       {
         path: '/dashboard',
@@ -162,7 +190,7 @@ export const router = createBrowserRouter([
       {
         path: '/profile/me',
         lazy: async () => {
-          const Component = () => <div className="p-6">Profile (Coming Soon)</div>
+          const { default: Component } = await import('../features/identity/pages/ProfilePage')
           return { Component }
         },
       },

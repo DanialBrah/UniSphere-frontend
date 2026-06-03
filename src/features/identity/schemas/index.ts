@@ -115,3 +115,21 @@ export interface ClubFormData {
   category?: string
   description?: string
 }
+
+export const forgotPasswordSchema = z.object({ email })
+
+export const resetPasswordSchema = z
+  .object({ newPassword: password, confirmPassword: password })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+
+export interface ForgotPasswordFormData {
+  email: string
+}
+
+export interface ResetPasswordFormData {
+  newPassword: string
+  confirmPassword: string
+}
