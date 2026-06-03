@@ -2,11 +2,17 @@ import { useAuth } from '../../../../hooks/useAuth'
 import type { UserProfileResponse } from '../../types/auth'
 
 function displayName(user: UserProfileResponse): string {
-  if (user.role === 'STUDENT' || user.role === 'ALUMNI' || user.role === 'ADMIN') return user.fullName
-  if (user.role === 'EMPLOYER') return user.companyName
-  if (user.role === 'CLUB') return user.name
-  if (user.role === 'UNIVERSITY') return user.name
-  return user.email
+  switch (user.role) {
+    case 'STUDENT':
+    case 'ALUMNI':
+    case 'ADMIN':
+      return user.fullName
+    case 'EMPLOYER':
+      return user.companyName
+    case 'CLUB':
+    case 'UNIVERSITY':
+      return user.name
+  }
 }
 
 function todayFormatted(): string {

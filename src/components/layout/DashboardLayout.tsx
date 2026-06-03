@@ -44,13 +44,17 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 function displayName(user: UserProfileResponse): string {
-  if (user.role === 'STUDENT' || user.role === 'ALUMNI' || user.role === 'ADMIN') {
-    return user.fullName
+  switch (user.role) {
+    case 'STUDENT':
+    case 'ALUMNI':
+    case 'ADMIN':
+      return user.fullName
+    case 'EMPLOYER':
+      return user.companyName
+    case 'CLUB':
+    case 'UNIVERSITY':
+      return user.name
   }
-  if (user.role === 'EMPLOYER') return user.companyName
-  if (user.role === 'CLUB') return user.name
-  if (user.role === 'UNIVERSITY') return user.name
-  return user.email
 }
 
 function getInitials(name: string): string {

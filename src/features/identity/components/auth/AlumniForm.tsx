@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
@@ -14,7 +14,7 @@ export function AlumniForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate()
   const { mutate, isPending, isSuccess, error } = useRegister('ALUMNI')
   const { register, handleSubmit, formState: { errors } } = useForm<AlumniFormData>({
-    resolver: zodResolver(alumniSchema),
+    resolver: zodResolver(alumniSchema) as unknown as Resolver<AlumniFormData>,
   })
 
   useEffect(() => { if (isSuccess) navigate('/dashboard', { replace: true }) }, [isSuccess, navigate])

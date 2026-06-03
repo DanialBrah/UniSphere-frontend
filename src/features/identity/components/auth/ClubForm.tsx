@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
@@ -14,7 +14,7 @@ export function ClubForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate()
   const { mutate, isPending, isSuccess, error } = useRegister('CLUB')
   const { register, handleSubmit, formState: { errors } } = useForm<ClubFormData>({
-    resolver: zodResolver(clubSchema),
+    resolver: zodResolver(clubSchema) as unknown as Resolver<ClubFormData>,
   })
 
   useEffect(() => { if (isSuccess) navigate('/dashboard', { replace: true }) }, [isSuccess, navigate])
@@ -29,7 +29,7 @@ export function ClubForm({ onBack }: { onBack: () => void }) {
       </div>
       <div>
         <Label>University ID *</Label>
-        <input {...register('universityId')} type="number" placeholder="1" className={inputClass(!!errors.universityId)} />
+        <input {...register('universityId', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })} type="number" placeholder="1" className={inputClass(!!errors.universityId)} />
         <FieldError message={errors.universityId?.message} />
       </div>
       <div>

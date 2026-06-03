@@ -19,11 +19,11 @@ export const studentSchema = z.object({
   fullName: z.string().min(2, 'Full name is required'),
   matricNumber: z.string().min(1, 'Matric number is required'),
   universityEmail: z.string().email('Invalid email').optional().or(z.literal('')),
-  universityId: z.coerce.number().positive().optional(),
+  universityId: z.number().optional(),
   phone,
   faculty: z.string().optional(),
   program: z.string().optional(),
-  yearOfStudy: z.coerce.number().min(1).max(10).optional(),
+  yearOfStudy: z.number().optional(),
 })
 
 export const alumniSchema = z.object({
@@ -31,7 +31,7 @@ export const alumniSchema = z.object({
   password,
   fullName: z.string().min(2, 'Full name is required'),
   graduationYear: z.string().regex(/^\d{4}$/, 'Must be a 4-digit year (e.g. 2022)'),
-  universityId: z.coerce.number().positive().optional(),
+  universityId: z.number().optional(),
   phone,
   degree: z.string().optional(),
   major: z.string().optional(),
@@ -55,14 +55,63 @@ export const clubSchema = z.object({
   email,
   password,
   name: z.string().min(2, 'Club name is required'),
-  universityId: z.coerce.number({ invalid_type_error: 'University ID is required' }).positive('University ID is required'),
+  universityId: z.number({ message: 'University ID is required' }).min(1, 'University ID is required'),
   phone,
   category: z.string().optional(),
   description: z.string().optional(),
 })
 
-export type LoginFormData = z.infer<typeof loginSchema>
-export type StudentFormData = z.infer<typeof studentSchema>
-export type AlumniFormData = z.infer<typeof alumniSchema>
-export type EmployerFormData = z.infer<typeof employerSchema>
-export type ClubFormData = z.infer<typeof clubSchema>
+// Explicit interfaces — do not use z.infer here; @hookform/resolvers v5 + Zod v4
+// infers unknown for numeric fields when using refinements (.positive()/.min()).
+export interface LoginFormData {
+  email: string
+  password: string
+}
+
+export interface StudentFormData {
+  email: string
+  password: string
+  fullName: string
+  matricNumber: string
+  universityEmail?: string
+  universityId?: number
+  phone?: string
+  faculty?: string
+  program?: string
+  yearOfStudy?: number
+}
+
+export interface AlumniFormData {
+  email: string
+  password: string
+  fullName: string
+  graduationYear: string
+  universityId?: number
+  phone?: string
+  degree?: string
+  major?: string
+  currentCompany?: string
+  currentPosition?: string
+  linkedinUrl?: string
+}
+
+export interface EmployerFormData {
+  email: string
+  password: string
+  companyName: string
+  phone?: string
+  industry?: string
+  companySize?: string
+  websiteUrl?: string
+  description?: string
+}
+
+export interface ClubFormData {
+  email: string
+  password: string
+  name: string
+  universityId: number
+  phone?: string
+  category?: string
+  description?: string
+}

@@ -162,7 +162,7 @@ describe('clubSchema', () => {
     ).toBe(false)
   })
 
-  it('fails when universityId is zero or negative', () => {
+  it('fails when universityId is less than 1', () => {
     expect(clubSchema.safeParse({ ...valid, universityId: 0 }).success).toBe(false)
     expect(clubSchema.safeParse({ ...valid, universityId: -1 }).success).toBe(false)
   })

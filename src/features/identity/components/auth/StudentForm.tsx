@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
@@ -14,7 +14,7 @@ export function StudentForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate()
   const { mutate, isPending, isSuccess, error } = useRegister('STUDENT')
   const { register, handleSubmit, formState: { errors } } = useForm<StudentFormData>({
-    resolver: zodResolver(studentSchema),
+    resolver: zodResolver(studentSchema) as unknown as Resolver<StudentFormData>,
   })
 
   useEffect(() => { if (isSuccess) navigate('/dashboard', { replace: true }) }, [isSuccess, navigate])
@@ -63,7 +63,7 @@ export function StudentForm({ onBack }: { onBack: () => void }) {
         </div>
         <div>
           <Label>Year of study</Label>
-          <input {...register('yearOfStudy')} type="number" min={1} max={10} placeholder="2" className={inputClass(false)} />
+          <input {...register('yearOfStudy', { setValueAs: (v: string) => v === '' ? undefined : Number(v) })} type="number" min={1} max={10} placeholder="2" className={inputClass(false)} />
         </div>
       </OptionalSection>
       <div className="flex gap-3 pt-2">
