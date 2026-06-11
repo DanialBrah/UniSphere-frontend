@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { PostMedia } from '../types'
 
@@ -13,20 +13,13 @@ export function MediaGrid({ media }: Props) {
 
   const sorted = [...media].sort((a, b) => a.sortOrder - b.sortOrder)
   const total = sorted.length
-
-  useEffect(() => {
-    // Clamp index when media changes
-    setIndex((prev) => Math.max(0, Math.min(total - 1, prev)))
-  }, [total])
+  const safeIndex = Math.min(index, total - 1)
 
   function goTo(i: number) {
     setIndex(Math.max(0, Math.min(total - 1, i)))
   }
 
-  const item = sorted[index]
-
-  // Guard against undefined item
-  if (!item) return null
+  const item = sorted[safeIndex]
 
   return (
     <div className="relative rounded-xl overflow-hidden bg-black/5 dark:bg-black/20 select-none">
@@ -54,8 +47,8 @@ export function MediaGrid({ media }: Props) {
         <>
           {/* Prev */}
           <button
-            onClick={() => goTo(index - 1)}
-            disabled={index === 0}
+            onClick={() => goTo(safeIndex - 1)}
+            disabled={safeIndex === 0}
             className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white transition-opacity disabled:opacity-0 hover:bg-black/70"
           >
             <ChevronLeft size={16} />
@@ -63,8 +56,8 @@ export function MediaGrid({ media }: Props) {
 
           {/* Next */}
           <button
-            onClick={() => goTo(index + 1)}
-            disabled={index === total - 1}
+            onClick={() => goTo(safeIndex + 1)}
+            disabled={safeIndex === total - 1}
             className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white transition-opacity disabled:opacity-0 hover:bg-black/70"
           >
             <ChevronRight size={16} />
@@ -72,7 +65,7 @@ export function MediaGrid({ media }: Props) {
 
           {/* Counter badge */}
           <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-            {index + 1} / {total}
+            {safeIndex + 1} / {total}
           </div>
 
           {/* Dot indicators */}
@@ -82,7 +75,7 @@ export function MediaGrid({ media }: Props) {
                 key={i}
                 onClick={() => goTo(i)}
                 className={`rounded-full transition-all duration-200 ${
-                  i === index
+                  i === safeIndex
                     ? 'w-4 h-1.5 bg-white'
                     : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
                 }`}

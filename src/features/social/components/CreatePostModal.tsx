@@ -37,6 +37,8 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
 
   // Files selected but not yet uploaded — previewed locally
   const [pendingMedia, setPendingMedia] = useState<PendingMedia[]>([])
+  const pendingMediaRef = useRef<PendingMedia[]>([])
+  pendingMediaRef.current = pendingMedia
 
   // Edit-mode only: track existing server media
   const [remainingMedia, setRemainingMedia] = useState<PostMedia[]>(existingPost?.media ?? [])
@@ -70,9 +72,10 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
 
   useEffect(() => {
     return () => {
-      // Revoke all blob URLs on unmount
-      pendingMedia.forEach((item) => URL.revokeObjectURL(item.previewUrl))
+      pendingMediaRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl))
     }
+  // pendingMediaRef tracks pendingMedia via line above — no need to re-register cleanup on every add
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
