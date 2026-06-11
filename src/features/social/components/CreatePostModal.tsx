@@ -38,7 +38,10 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
   // Files selected but not yet uploaded — previewed locally
   const [pendingMedia, setPendingMedia] = useState<PendingMedia[]>([])
   const pendingMediaRef = useRef<PendingMedia[]>([])
-  pendingMediaRef.current = pendingMedia
+
+  useEffect(() => {
+    pendingMediaRef.current = pendingMedia
+  }, [pendingMedia])
 
   // Edit-mode only: track existing server media
   const [remainingMedia, setRemainingMedia] = useState<PostMedia[]>(existingPost?.media ?? [])
@@ -74,8 +77,6 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
     return () => {
       pendingMediaRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl))
     }
-  // pendingMediaRef tracks pendingMedia via line above — no need to re-register cleanup on every add
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -253,8 +254,7 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={isPending}
-                  className="w-full flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-300 dark:border-[#2D1F4D] text-sm text-gray-500 dark:text-gray-400 hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-50"
-                >
+                  className="w-full flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-gray-300 dark:border-[#2D1F4D] text-sm text-gray-500 dark:text-gray-400 hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-50">
                   <ImagePlus size={16} />
                   Add photos or videos{totalMedia > 0 ? ` (${totalMedia}/${MAX_MEDIA})` : ''}
                 </button>
