@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { formatDistanceToNow } from 'date-fns'
 import { fadeUp } from '../../../lib/animations'
@@ -18,6 +18,7 @@ interface Props {
 
 export function PostCard({ post, expanded = false }: Props) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [showEdit, setShowEdit] = useState(false)
 
   const isOwner = user?.id === post.author.id
@@ -102,7 +103,7 @@ export function PostCard({ post, expanded = false }: Props) {
         <PostActions
           post={post}
           onCommentClick={
-            expanded ? undefined : () => window.location.assign(`/post/${post.id}`)
+            expanded ? undefined : () => navigate(`/post/${post.id}`)
           }
         />
       </motion.div>

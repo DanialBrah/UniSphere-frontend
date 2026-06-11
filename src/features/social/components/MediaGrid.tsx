@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { PostMedia } from '../types'
 
@@ -14,11 +14,19 @@ export function MediaGrid({ media }: Props) {
   const sorted = [...media].sort((a, b) => a.sortOrder - b.sortOrder)
   const total = sorted.length
 
+  useEffect(() => {
+    // Clamp index when media changes
+    setIndex((prev) => Math.max(0, Math.min(total - 1, prev)))
+  }, [total])
+
   function goTo(i: number) {
     setIndex(Math.max(0, Math.min(total - 1, i)))
   }
 
   const item = sorted[index]
+
+  // Guard against undefined item
+  if (!item) return null
 
   return (
     <div className="relative rounded-xl overflow-hidden bg-black/5 dark:bg-black/20 select-none">

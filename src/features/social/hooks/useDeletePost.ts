@@ -8,8 +8,13 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: (postId: number) => postApi.deletePost(postId),
-    onSuccess: () => {
+    onSuccess: (_data, postId) => {
       queryClient.invalidateQueries({ queryKey: socialKeys.feedInfinite() })
+      queryClient.invalidateQueries({ queryKey: socialKeys.post(postId) })
+      queryClient.invalidateQueries({ queryKey: socialKeys.likedInfinite() })
+      queryClient.invalidateQueries({ queryKey: socialKeys.savedInfinite() })
+      // Invalidate user posts cache
+      queryClient.invalidateQueries({ queryKey: ['social', 'userPosts'], exact: false })
       toast.success('Post deleted')
     },
     onError: () => {

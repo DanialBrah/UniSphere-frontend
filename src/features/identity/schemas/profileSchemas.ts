@@ -19,22 +19,14 @@ export const alumniProfileSchema = baseProfileSchema.extend({
   fullName: z.string().min(2, 'Full name is required').max(100),
   currentCompany: z.string().max(200).optional().or(z.literal('')),
   currentPosition: z.string().max(200).optional().or(z.literal('')),
-  linkedinUrl: z
-    .string()
-    .url('Enter a valid LinkedIn URL')
-    .optional()
-    .or(z.literal('')),
+  linkedinUrl: z.union([z.string().url('Enter a valid LinkedIn URL'), z.literal('')]).optional(),
 })
 
 export const employerProfileSchema = baseProfileSchema.extend({
   companyName: z.string().min(2, 'Company name is required').max(200),
   industry: z.string().max(100).optional().or(z.literal('')),
   companySize: z.string().max(50).optional().or(z.literal('')),
-  websiteUrl: z
-    .string()
-    .url('Enter a valid website URL')
-    .optional()
-    .or(z.literal('')),
+  websiteUrl: z.union([z.string().url('Enter a valid website URL'), z.literal('')]).optional(),
   description: z.string().max(1000).optional().or(z.literal('')),
 })
 

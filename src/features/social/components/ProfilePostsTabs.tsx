@@ -15,13 +15,31 @@ const TABS: { id: Tab; label: string; icon: typeof Grid3x3 }[] = [
 ]
 
 function LikedPostsFeed() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useLikedPosts()
+  const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useLikedPosts()
   const posts = data?.pages.flatMap((p) => p.content) ?? []
 
   if (isLoading && !data) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)}
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 bg-white dark:bg-[#130D22] rounded-2xl border border-gray-200 dark:border-[#2D1F4D]">
+        <Heart size={32} className="text-red-400 mb-3" />
+        <p className="text-sm text-red-500 dark:text-red-400 mb-1">Failed to load liked posts</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          {error instanceof Error ? error.message : 'An error occurred'}
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 text-sm text-primary font-medium hover:underline"
+        >
+          Retry
+        </button>
       </div>
     )
   }
@@ -55,13 +73,31 @@ function LikedPostsFeed() {
 }
 
 function SavedPostsFeed() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useSavedPosts()
+  const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useSavedPosts()
   const posts = data?.pages.flatMap((p) => p.content) ?? []
 
   if (isLoading && !data) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)}
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 bg-white dark:bg-[#130D22] rounded-2xl border border-gray-200 dark:border-[#2D1F4D]">
+        <FileText size={32} className="text-red-400 mb-3" />
+        <p className="text-sm text-red-500 dark:text-red-400 mb-1">Failed to load saved posts</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          {error instanceof Error ? error.message : 'An error occurred'}
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 text-sm text-primary font-medium hover:underline"
+        >
+          Retry
+        </button>
       </div>
     )
   }

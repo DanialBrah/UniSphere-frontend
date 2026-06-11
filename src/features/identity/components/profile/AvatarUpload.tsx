@@ -1,11 +1,15 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Camera, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface Props {
   currentAvatarUrl: string | null
   displayName: string
   onAvatarChange: (file: File | null) => void
 }
+
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
 
 export function AvatarUpload({ currentAvatarUrl, displayName, onAvatarChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
@@ -19,10 +23,39 @@ export function AvatarUpload({ currentAvatarUrl, displayName, onAvatarChange }: 
     .join('')
     .toUpperCase()
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl !== currentAvatarUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl, currentAvatarUrl])
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validate file type
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      toast.error('Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.')
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error('File too large. Maximum size is 5MB.')
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
     e.target.value = ''
+
+    // Revoke existing blob URL before creating a new one
+    if (previewUrl && previewUrl !== currentAvatarUrl) {
+      URL.revokeObjectURL(previewUrl)
+    }
+
     setPreviewUrl(URL.createObjectURL(file))
     setHasChange(true)
     onAvatarChange(file)

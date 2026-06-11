@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function CommentList({ postId }: Props) {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useComments(postId)
+  const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage } = useComments(postId)
 
   const comments = data?.pages.flatMap((p) => p.content) ?? []
 
@@ -22,7 +22,18 @@ export function CommentList({ postId }: Props) {
         </div>
       )}
 
-      {!isLoading && comments.length === 0 && (
+      {isError && (
+        <div className="text-center py-6">
+          <p className="text-sm text-red-500 dark:text-red-400 mb-2">
+            Failed to load comments
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {error instanceof Error ? error.message : 'An error occurred'}
+          </p>
+        </div>
+      )}
+
+      {!isLoading && !isError && comments.length === 0 && (
         <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
           No comments yet. Be the first!
         </p>

@@ -9,7 +9,7 @@ import { CreatePostModal } from '../components/CreatePostModal'
 import { useFeed } from '../hooks/useFeed'
 
 export default function FeedPage() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useFeed()
+  const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useFeed()
   const [showCreate, setShowCreate] = useState(false)
 
   const posts = data?.pages.flatMap((p) => p.content) ?? []
@@ -44,8 +44,29 @@ export default function FeedPage() {
           </div>
         )}
 
+        {/* Error state */}
+        {isError && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+              <Rss size={28} className="text-red-500" />
+            </div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Failed to load feed
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              {error instanceof Error ? error.message : 'An error occurred'}
+            </p>
+            <button
+              onClick={() => refetch()}
+              className="px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!isLoading && posts.length === 0 && (
+        {!isLoading && !isError && posts.length === 0 && (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-2xl bg-primary-50 dark:bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Rss size={28} className="text-primary" />

@@ -20,14 +20,28 @@ export const mediaApi = {
       .then(unwrap),
 
   // Plain fetch — S3 presigned URLs authenticate via query string; extra headers break the signature
-  uploadToPresignedUrl: (uploadUrl: string, file: File): Promise<void> =>
-    fetch(uploadUrl, {
+  uploadToPresignedUrl: (uploadUrl: string, file: File, timeoutMs = 60000): Promise<void> => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+    return fetch(uploadUrl, {
       method: 'PUT',
       body: file,
       headers: { 'Content-Type': file.type },
-    }).then((res) => {
-      if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
-    }),
+      signal: controller.signal,
+    })
+      .then((res) => {
+        clearTimeout(timeoutId)
+        if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
+      })
+      .catch((err) => {
+        clearTimeout(timeoutId)
+        if (err.name === 'AbortError') {
+          throw new Error('Upload timeout exceeded')
+        }
+        throw err
+      })
+  },
 
   upload: async (file: File): Promise<MediaResult> => {
     const { uploadUrl, mediaKey } = await mediaApi.presign(file.name, file.type)

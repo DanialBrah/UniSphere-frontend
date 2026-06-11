@@ -10,6 +10,8 @@ export function useCreatePost() {
     mutationFn: postApi.createPost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: socialKeys.feedInfinite() })
+      // Invalidate user posts cache
+      queryClient.invalidateQueries({ queryKey: ['social', 'userPosts'], exact: false })
       toast.success('Post created')
     },
     onError: () => {

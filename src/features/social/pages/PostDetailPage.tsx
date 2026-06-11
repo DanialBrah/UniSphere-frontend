@@ -10,8 +10,9 @@ export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const postId = Number(id)
+  const isValidId = id != null && Number.isFinite(postId) && postId > 0
 
-  const { data: post, isLoading, isError } = usePost(postId)
+  const { data: post, isLoading, isError } = usePost(postId, { enabled: isValidId })
 
   return (
     <DashboardLayout>
@@ -26,10 +27,10 @@ export default function PostDetailPage() {
         </button>
 
         {/* Loading */}
-        {isLoading && <PostSkeleton />}
+        {isLoading && isValidId && <PostSkeleton />}
 
-        {/* Error */}
-        {isError && (
+        {/* Error or Invalid ID */}
+        {(isError || !isValidId) && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <AlertTriangle size={32} className="text-red-400 mb-3" />
             <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">

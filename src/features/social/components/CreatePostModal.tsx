@@ -68,6 +68,13 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  useEffect(() => {
+    return () => {
+      // Revoke all blob URLs on unmount
+      pendingMedia.forEach((item) => URL.revokeObjectURL(item.previewUrl))
+    }
+  }, [])
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (files.length === 0) return
@@ -98,7 +105,13 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
   }
 
   function handleRemovePending(index: number) {
-    setPendingMedia((prev) => prev.filter((_, i) => i !== index))
+    setPendingMedia((prev) => {
+      const item = prev[index]
+      if (item) {
+        URL.revokeObjectURL(item.previewUrl)
+      }
+      return prev.filter((_, i) => i !== index)
+    })
   }
 
   async function onSubmit(data: FormData) {
