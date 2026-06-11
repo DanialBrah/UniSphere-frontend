@@ -1,19 +1,6 @@
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, Pencil } from 'lucide-react'
+import { displayName } from '../../utils/profileUtils'
 import type { UserProfileResponse } from '../../types/auth'
-
-function displayName(user: UserProfileResponse): string {
-  switch (user.role) {
-    case 'STUDENT':
-    case 'ALUMNI':
-    case 'ADMIN':
-      return user.fullName
-    case 'EMPLOYER':
-      return user.companyName
-    case 'CLUB':
-    case 'UNIVERSITY':
-      return user.name
-  }
-}
 
 function getInitials(name: string): string {
   return name
@@ -40,9 +27,10 @@ const ROLE_COLOR: Record<string, string> = {
 
 interface Props {
   user: UserProfileResponse
+  onEditClick?: () => void
 }
 
-export function ProfileHeader({ user }: Props) {
+export function ProfileHeader({ user, onEditClick }: Props) {
   const name = displayName(user)
   const initials = getInitials(name)
   const memberSince = formatMemberSince(user.createdAt)
@@ -65,10 +53,21 @@ export function ProfileHeader({ user }: Props) {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white truncate">{name}</h2>
-            {user.isVerified && (
-              <CheckCircle size={18} className="text-emerald-500 flex-shrink-0" aria-label="Verified" />
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white truncate">{name}</h2>
+              {user.isVerified && (
+                <CheckCircle size={18} className="text-emerald-500 flex-shrink-0" aria-label="Verified" />
+              )}
+            </div>
+            {onEditClick && (
+              <button
+                onClick={onEditClick}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#2D1F4D] text-xs font-medium text-gray-600 dark:text-gray-300 hover:border-primary/50 hover:text-primary dark:hover:text-primary transition-colors"
+              >
+                <Pencil size={13} />
+                Edit Profile
+              </button>
             )}
           </div>
 

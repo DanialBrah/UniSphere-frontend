@@ -57,7 +57,14 @@ export const router = createBrowserRouter([
       {
         path: '/feed',
         lazy: async () => {
-          const Component = () => <div className="p-6">Feed (Coming Soon)</div>
+          const { default: Component } = await import('../features/social/pages/FeedPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/post/:id',
+        lazy: async () => {
+          const { default: Component } = await import('../features/social/pages/PostDetailPage')
           return { Component }
         },
       },
