@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { ProtectedRoute } from '../components/layout/ProtectedRoute'
+import { ProtectedLayout } from '../components/layout/ProtectedLayout'
 import { PageSpinner } from '../components/ui/PageSpinner'
 
 export const router = createBrowserRouter([
@@ -48,6 +49,9 @@ export const router = createBrowserRouter([
     HydrateFallback: PageSpinner,
     children: [
       {
+        element: <ProtectedLayout />,
+        children: [
+      {
         path: '/dashboard',
         lazy: async () => {
           const { default: Component } = await import('../features/identity/pages/DashboardPage')
@@ -78,14 +82,14 @@ export const router = createBrowserRouter([
       {
         path: '/messages',
         lazy: async () => {
-          const Component = () => <div className="p-6">Messages (Coming Soon)</div>
+          const { default: Component } = await import('../features/messaging/pages/MessagesPage')
           return { Component }
         },
       },
       {
         path: '/notifications',
         lazy: async () => {
-          const Component = () => <div className="p-6">Notifications (Coming Soon)</div>
+          const { default: Component } = await import('../features/notifications/pages/NotificationsPage')
           return { Component }
         },
       },
@@ -183,7 +187,7 @@ export const router = createBrowserRouter([
       {
         path: '/chatbot',
         lazy: async () => {
-          const Component = () => <div className="p-6">Campus Chatbot (Coming Soon)</div>
+          const { default: Component } = await import('../features/campus/pages/ChatbotPage')
           return { Component }
         },
       },
@@ -193,6 +197,15 @@ export const router = createBrowserRouter([
           const { default: Component } = await import('../features/identity/pages/ProfilePage')
           return { Component }
         },
+      },
+      {
+        path: '/profile/:id',
+        lazy: async () => {
+          const { default: Component } = await import('../features/identity/pages/UserProfilePage')
+          return { Component }
+        },
+      },
+        ],
       },
     ],
   },

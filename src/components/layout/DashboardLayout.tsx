@@ -13,6 +13,12 @@ import { useAuth } from '../../hooks/useAuth'
 import { useThemeStore } from '../../stores/themeStore'
 import { useLogout } from '../../features/identity/hooks/useLogout'
 import { useAuthStore } from '../../stores/authStore'
+import { useInfiniteQuery } from '@tanstack/react-query'
+import { useChatStore } from '../../stores/chatStore'
+import { useNotificationUnreadCount } from '../../features/notifications/hooks/useNotificationUnreadCount'
+import { notificationKeys } from '../../features/notifications/hooks/useNotifications'
+import { notificationApi } from '../../features/notifications/api/notificationApi'
+import { stompClient, addStompConnectListener, addStompDisconnectListener } from '../../lib/stompClient'
 import type { UserProfileResponse } from '../../features/identity/types/auth'
 
 interface NavItem {
@@ -142,6 +148,38 @@ export function DashboardLayout({ children }: Props) {
   const location = useLocation()
   const navigate = useNavigate()
   const logoutMutation = useLogout()
+  const accessToken = useAuthStore((s) => s.accessToken)
+
+  // Reconnect STOMP when the app reloads with a persisted token.
+  // onConnect/onDisconnect update the reactive isStompConnected flag so hooks
+  // that need an active connection can depend on it rather than polling stompClient.connected.
+  useEffect(() => {
+    if (!accessToken || stompClient.active) return
+    stompClient.configure({ connectHeaders: { Authorization: `Bearer ${accessToken}` } })
+    addStompConnectListener(() => useChatStore.getState().setStompConnected(true))
+    addStompDisconnectListener(() => useChatStore.getState().setStompConnected(false))
+    stompClient.activate()
+  }, [accessToken])
+
+  const unreadCounts = useChatStore((s) => s.unreadCounts)
+  const hasUnread = Object.values(unreadCounts).some((n) => n > 0)
+
+  const { data: notifUnread } = useNotificationUnreadCount()
+
+  // Subscribe to the notifications list cache reactively (enabled:false = no fetch,
+  // but the observer still receives updates when NotificationsPage or the STOMP
+  // handler writes to the same query key).
+  const { data: notifCacheData } = useInfiniteQuery({
+    queryKey: notificationKeys.infinite(),
+    queryFn: ({ pageParam }) => notificationApi.getNotifications(pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (page) => (page.last ? undefined : page.number + 1),
+    enabled: false,
+    staleTime: Infinity,
+  })
+  const hasUnreadFromList = notifCacheData?.pages.flatMap((p) => p.content).some((n) => !n.read) ?? false
+
+  const hasUnreadNotifs = (notifUnread?.count ?? 0) > 0 || hasUnreadFromList
 
   const name = user ? displayName(user) : ''
   const initials = getInitials(name)
@@ -235,6 +273,9 @@ export function DashboardLayout({ children }: Props) {
                 {items.map((item) => {
                   const active = isActive(item.to)
                   const Icon = item.icon
+                  const isMessages = item.to === '/messages'
+                  const isNotifications = item.to === '/notifications'
+                  const showBadge = (isMessages && hasUnread) || (isNotifications && hasUnreadNotifs)
                   return (
                     <Link
                       key={item.to}
@@ -249,8 +290,16 @@ export function DashboardLayout({ children }: Props) {
                         }
                       `}
                     >
-                      <Icon size={17} className="flex-shrink-0" />
-                      {!collapsed && <span>{item.label}</span>}
+                      <div className="relative flex-shrink-0">
+                        <Icon size={17} />
+                        {showBadge && collapsed && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
+                        )}
+                      </div>
+                      {!collapsed && <span className="flex-1">{item.label}</span>}
+                      {!collapsed && showBadge && (
+                        <span className="ml-auto w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                      )}
                     </Link>
                   )
                 })}

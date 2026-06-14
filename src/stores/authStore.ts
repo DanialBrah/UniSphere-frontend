@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { queryClient } from '../lib/queryClient'
 import type { UserProfileResponse } from '../features/identity/types/auth'
 
@@ -33,6 +33,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'unisphere-auth',
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
         user: state.user,
