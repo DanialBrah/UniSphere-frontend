@@ -32,6 +32,7 @@ export function useChatbot() {
         timestamp: new Date().toISOString(),
       }
       setSessionMessages((prev) => [...prev, userMsg])
+      return { previousMessages: sessionMessages }
     },
 
     onSuccess: (data) => {
@@ -43,9 +44,11 @@ export function useChatbot() {
       setSessionMessages((prev) => [...prev, botMsg])
     },
 
-    onError: () => {
+    onError: (_error, _variables, context) => {
       toast.error('Failed to get a response. Please try again.')
-      setSessionMessages((prev) => prev.slice(0, -1))
+      if (context?.previousMessages) {
+        setSessionMessages(context.previousMessages)
+      }
     },
   })
 
@@ -53,6 +56,7 @@ export function useChatbot() {
     mutationFn: chatbotApi.clearSession,
     onSuccess: () => {
       setSessionMessages([])
+      queryClient.setQueryData(HISTORY_KEY, [])
       queryClient.invalidateQueries({ queryKey: HISTORY_KEY })
     },
     onError: () => {
