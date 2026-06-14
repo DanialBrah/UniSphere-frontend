@@ -8,7 +8,10 @@ interface Props {
 }
 
 export function MessageBubble({ message, isOwn, onDelete }: Props) {
-  const time = formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })
+  const ts = message.createdAt.endsWith('Z') || message.createdAt.includes('+')
+    ? message.createdAt
+    : message.createdAt + 'Z'
+  const time = formatDistanceToNow(new Date(ts), { addSuffix: true })
 
   const initials = message.senderName
     .split(' ')
