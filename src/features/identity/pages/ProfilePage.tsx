@@ -18,7 +18,7 @@ function DeleteAccountModal({ onConfirm, onCancel, isPending }: {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
-      onClick={onCancel}
+      onClick={!isPending ? onCancel : undefined}
     >
       <div
         className="bg-white dark:bg-[#130D22] rounded-2xl border border-gray-200 dark:border-[#2D1F4D] shadow-xl p-6 w-full max-w-sm"

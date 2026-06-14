@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { X, Search, Loader2, UserPlus } from 'lucide-react'
 import { userApi } from '../../identity/api/userApi'
 import { useAddMember } from '../hooks/useAddMember'
@@ -18,10 +18,16 @@ export function AddMemberModal({ conversation, onClose }: Props) {
 
   const { mutate: addMember, isPending } = useAddMember(conversation.id)
 
-  const existingIds = new Set(conversation.members.map((m) => m.userId))
+  const existingIds = useMemo(
+    () => new Set(conversation.members.map((m) => m.userId)),
+    [conversation.members]
+  )
 
   useEffect(() => {
-    if (query.trim().length < 2) return
+    if (query.trim().length < 2) {
+      setResults([])
+      return
+    }
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
@@ -35,8 +41,7 @@ export function AddMemberModal({ conversation, onClose }: Props) {
       }
     }, 300)
     return () => clearTimeout(timer)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  }, [query, existingIds])
 
   const displayedResults = query.trim().length < 2 ? [] : results
 

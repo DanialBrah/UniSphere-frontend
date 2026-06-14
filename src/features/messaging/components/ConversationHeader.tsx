@@ -15,7 +15,7 @@ function getDisplayInfo(conv: ConversationResponse, currentUserId: number) {
 
 export function ConversationHeader({ conversation, currentUserId, onInfoClick }: Props) {
   const { name, avatar } = getDisplayInfo(conversation, currentUserId)
-  const initials = name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+  const initials = name.split(' ').filter((w) => w).map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 
   return (
     <div className="px-4 py-3 border-b border-gray-200 dark:border-[#2D1F4D] flex items-center gap-3 shrink-0">

@@ -10,7 +10,8 @@ import { useUserById }      from '../hooks/useUserById'
 
 export default function UserProfilePage() {
   const { id } = useParams<{ id: string }>()
-  const userId = id ? parseInt(id, 10) : null
+  const parsedId = id ? parseInt(id, 10) : NaN
+  const userId = !isNaN(parsedId) ? parsedId : null
   const navigate = useNavigate()
   const { data: user, isLoading, isError } = useUserById(userId)
 

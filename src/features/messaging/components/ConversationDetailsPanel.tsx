@@ -64,7 +64,7 @@ export function ConversationDetailsPanel({ conversation, currentUserId, onClose 
           <div className="px-4 py-5 border-b border-gray-100 dark:border-[#2D1F4D]">
             <div className="flex flex-col items-center gap-2">
               <div className="w-14 h-14 rounded-full bg-violet-500 flex items-center justify-center text-white text-xl font-bold">
-                {displayName.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
+                {displayName.split(' ').filter((w) => w).map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 text-center">{displayName}</p>
               <span className="text-xs px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-medium">
@@ -101,7 +101,7 @@ export function ConversationDetailsPanel({ conversation, currentUserId, onClose 
                 const isSelf = member.userId === currentUserId
                 const memberIsAdmin = member.role === 'ADMIN'
                 const initials = member.displayName
-                  .split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+                  .split(' ').filter((w) => w).map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 
                 return (
                   <div key={member.userId} className="flex items-center gap-3 py-2 rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-[#1E1430] group">

@@ -156,9 +156,13 @@ export function DashboardLayout({ children }: Props) {
   useEffect(() => {
     if (!accessToken || stompClient.active) return
     stompClient.configure({ connectHeaders: { Authorization: `Bearer ${accessToken}` } })
-    addStompConnectListener(() => useChatStore.getState().setStompConnected(true))
-    addStompDisconnectListener(() => useChatStore.getState().setStompConnected(false))
+    const removeConnectListener = addStompConnectListener(() => useChatStore.getState().setStompConnected(true))
+    const removeDisconnectListener = addStompDisconnectListener(() => useChatStore.getState().setStompConnected(false))
     stompClient.activate()
+    return () => {
+      removeConnectListener()
+      removeDisconnectListener()
+    }
   }, [accessToken])
 
   const unreadCounts = useChatStore((s) => s.unreadCounts)

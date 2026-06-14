@@ -19,10 +19,11 @@ export function useStompChat(conversationId: number | null) {
   const queryClient = useQueryClient()
   const { setTyping } = useChatStore()
   const subscriptionRef = useRef<StompSubscription | null>(null)
+  const stompConnected = useChatStore((s) => s.isStompConnected)
 
   useEffect(() => {
     if (!conversationId) return
-    if (!stompClient.connected) return
+    if (!stompConnected) return
 
     subscriptionRef.current = stompClient.subscribe(
       `/topic/conversation/${conversationId}`,
@@ -70,6 +71,7 @@ export function useStompChat(conversationId: number | null) {
           (old) => {
             if (!old) return old
             const pages = old.pages
+            if (pages.length === 0) return old
             const lastPage = pages[pages.length - 1]
             return {
               ...old,
@@ -89,5 +91,5 @@ export function useStompChat(conversationId: number | null) {
       subscriptionRef.current?.unsubscribe()
       subscriptionRef.current = null
     }
-  }, [conversationId, queryClient, setTyping])
+  }, [conversationId, stompConnected, queryClient, setTyping])
 }

@@ -201,7 +201,8 @@ export function useGlobalMessagingSubscription() {
               messagingKeys.messagesInfinite(msg.conversationId),
               (old) => {
                 if (!old) return old
-                const pages    = old.pages
+                const pages = old.pages
+                if (pages.length === 0) return old
                 const lastPage = pages[pages.length - 1]
                 return {
                   ...old,

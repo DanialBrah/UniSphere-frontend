@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { userApi } from '../api/userApi'
 import { useAuthStore } from '../../../stores/authStore'
 import { stompClient } from '../../../lib/stompClient'
+import { getStompCleanupFunctions } from './useLogin'
 
 export function useDeleteAccount() {
   const navigate = useNavigate()
@@ -11,6 +12,9 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: userApi.deleteAccount,
     onSuccess: () => {
+      const { stompConnectCleanup, stompDisconnectCleanup } = getStompCleanupFunctions()
+      stompConnectCleanup?.()
+      stompDisconnectCleanup?.()
       if (stompClient.active) stompClient.deactivate()
       useAuthStore.getState().logout()
       navigate('/login', { replace: true })
