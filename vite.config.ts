@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  define: {
+    global: 'globalThis',
+  },
   server: {
     port: 5174,
   },

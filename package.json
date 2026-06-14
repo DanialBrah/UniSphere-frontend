@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@stomp/stompjs": "^7.3.0",
     "@tanstack/react-query": "^5.101.0",
     "axios": "^1.17.0",
     "date-fns": "^4.4.0",
@@ -22,6 +23,7 @@
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.77.0",
     "react-router-dom": "^7.16.0",
+    "sockjs-client": "^1.6.1",
     "sonner": "^2.0.7",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
@@ -36,6 +38,7 @@
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "babel-plugin-react-compiler": "^1.0.0",

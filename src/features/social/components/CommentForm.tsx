@@ -25,15 +25,13 @@ export function CommentForm({ postId, parentCommentId, onSuccess, placeholder, c
   })
 
   async function onSubmit(data: CreateCommentFormData) {
-    await createComment.mutateAsync(
-      { content: data.content, parentCommentId },
-      {
-        onSuccess: () => {
-          reset()
-          onSuccess?.()
-        },
-      },
-    )
+    try {
+      await createComment.mutateAsync({ content: data.content, parentCommentId })
+      reset()
+      onSuccess?.()
+    } catch {
+      // error is handled by useCreateComment's onError toast
+    }
   }
 
   if (!user) return null
