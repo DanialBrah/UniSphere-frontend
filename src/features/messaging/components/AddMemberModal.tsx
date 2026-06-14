@@ -24,10 +24,7 @@ export function AddMemberModal({ conversation, onClose }: Props) {
   )
 
   useEffect(() => {
-    if (query.trim().length < 2) {
-      setResults([])
-      return
-    }
+    if (query.trim().length < 2) return
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
