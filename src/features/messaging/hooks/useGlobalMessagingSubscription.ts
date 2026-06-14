@@ -45,7 +45,9 @@ function loadSeenIds(): Set<number> | null {
 function persistSeenIds(ids: Set<number>) {
   try {
     sessionStorage.setItem(SEEN_KEY, JSON.stringify([...ids]))
-  } catch {}
+  } catch {
+    // ignore storage quota errors
+  }
 }
 
 export function useGlobalMessagingSubscription() {

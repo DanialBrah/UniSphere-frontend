@@ -21,7 +21,7 @@ export function AddMemberModal({ conversation, onClose }: Props) {
   const existingIds = new Set(conversation.members.map((m) => m.userId))
 
   useEffect(() => {
-    if (query.trim().length < 2) { setResults([]); return }
+    if (query.trim().length < 2) return
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
@@ -37,6 +37,8 @@ export function AddMemberModal({ conversation, onClose }: Props) {
     return () => clearTimeout(timer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
+
+  const displayedResults = query.trim().length < 2 ? [] : results
 
   const handleAdd = (user: UserSearchResult) => {
     addMember(user.id, {
@@ -87,16 +89,16 @@ export function AddMemberModal({ conversation, onClose }: Props) {
 
         {/* Results */}
         <div className="flex-1 overflow-y-auto pb-3">
-          {results.length === 0 && query.trim().length >= 2 && !searching && (
+          {displayedResults.length === 0 && query.trim().length >= 2 && !searching && (
             <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-6">No users found</p>
           )}
-          {results.length === 0 && query.trim().length < 2 && (
+          {query.trim().length < 2 && (
             <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-6">
               Type at least 2 characters to search
             </p>
           )}
 
-          {results.map((user) => {
+          {displayedResults.map((user) => {
             const alreadyAdded = addedIds.has(user.id)
             const initials = user.displayName
               .split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()

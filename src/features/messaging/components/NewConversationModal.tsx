@@ -102,7 +102,7 @@ export function NewConversationModal({ onClose, onCreated }: Props) {
   const { mutate: createConversation, isPending } = useCreateConversation()
 
   useEffect(() => {
-    if (query.trim().length < 2) { setResults([]); return }
+    if (query.trim().length < 2) return
     const timer = setTimeout(async () => {
       setSearching(true)
       try {
@@ -115,6 +115,8 @@ export function NewConversationModal({ onClose, onCreated }: Props) {
     }, 300)
     return () => clearTimeout(timer)
   }, [query])
+
+  const displayedResults = query.trim().length < 2 ? [] : results
 
   const resetSearch = () => { setQuery(''); setResults([]) }
 
@@ -212,15 +214,15 @@ export function NewConversationModal({ onClose, onCreated }: Props) {
               <SearchInput value={query} onChange={setQuery} searching={searching} />
             </div>
             <div className="flex flex-col overflow-y-auto pb-3">
-              {results.length === 0 && query.trim().length >= 2 && !searching && (
+              {displayedResults.length === 0 && query.trim().length >= 2 && !searching && (
                 <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-6">No users found</p>
               )}
-              {results.length === 0 && query.trim().length < 2 && (
+              {query.trim().length < 2 && (
                 <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-6">
                   Type at least 2 characters to search
                 </p>
               )}
-              {results.map((user) => (
+              {displayedResults.map((user) => (
                 <UserRow
                   key={user.id}
                   user={user}
@@ -274,15 +276,15 @@ export function NewConversationModal({ onClose, onCreated }: Props) {
             </div>
 
             <div className="flex flex-col overflow-y-auto">
-              {results.length === 0 && query.trim().length >= 2 && !searching && (
+              {displayedResults.length === 0 && query.trim().length >= 2 && !searching && (
                 <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-4">No users found</p>
               )}
-              {results.length === 0 && query.trim().length < 2 && (
+              {query.trim().length < 2 && (
                 <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-4">
                   Search for people to add
                 </p>
               )}
-              {results.map((user) => (
+              {displayedResults.map((user) => (
                 <UserRow
                   key={user.id}
                   user={user}

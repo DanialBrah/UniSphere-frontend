@@ -89,5 +89,5 @@ export function useStompChat(conversationId: number | null) {
       subscriptionRef.current?.unsubscribe()
       subscriptionRef.current = null
     }
-  }, [conversationId, stompClient.connected, queryClient, setTyping])
+  }, [conversationId, queryClient, setTyping])
 }

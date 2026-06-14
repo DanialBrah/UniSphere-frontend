@@ -58,9 +58,10 @@ export function useConversationListSubscription(conversationIds: number[]) {
 
   // Unsubscribe everything on unmount
   useEffect(() => {
+    const subs = subscriptionsRef.current
     return () => {
-      subscriptionsRef.current.forEach((sub) => sub.unsubscribe())
-      subscriptionsRef.current.clear()
+      subs.forEach((sub) => sub.unsubscribe())
+      subs.clear()
     }
   }, [])
 }
