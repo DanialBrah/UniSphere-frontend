@@ -3,7 +3,6 @@ import type { ApiResponse } from '../../identity/types/auth'
 import type { SpringPage } from '../../social/types'
 import type { NotificationResponse, UnreadCountResponse } from '../types'
 
-const unwrap = <T>(r: { data: ApiResponse<T> }): T => r.data.data
 const unwrapPage = <T>(r: { data: ApiResponse<SpringPage<T>> }): SpringPage<T> => r.data.data
 
 export const notificationApi = {
