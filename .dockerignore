@@ -5,3 +5,5 @@ dist
 *.md
 .github
 npm-debug.log
+.env
+.env.*
