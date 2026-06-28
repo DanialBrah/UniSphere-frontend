@@ -89,4 +89,4 @@ jobs:
         run: npm run test:coverage
 
       - name: SonarQube analysis
-        run: npm run sonar -- -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=http://host.docker.internal:9000
+        run: npm run sonar -- -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=http://host.docker.internal:9000 -Dsonar.qualitygate.wait=true
