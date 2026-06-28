@@ -52,3 +52,27 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+
+  sonar-scan:
+    name: SonarQube Scan
+    runs-on: [self-hosted, sonar, frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: SonarQube analysis
+        run: npm run sonar -- -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=http://host.docker.internal:9000
