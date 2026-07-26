@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { postApi } from '../api/postApi'
 import { socialKeys } from '../types'
 import type { PostResponse, SpringPage } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 interface InfiniteData {
   pages: SpringPage<PostResponse>[]
@@ -43,12 +44,12 @@ export function useToggleSave() {
       return { previousFeed, previousPost }
     },
 
-    onError: (_err, postId, context) => {
+    onError: (err, postId, context) => {
       if (context?.previousFeed !== undefined)
         queryClient.setQueryData(socialKeys.feedInfinite(), context.previousFeed)
       if (context?.previousPost !== undefined)
         queryClient.setQueryData(socialKeys.post(postId), context.previousPost)
-      toast.error('Failed to update save')
+      toast.error(getErrorMessage(err))
     },
 
     onSettled: (_data, _err, postId) => {

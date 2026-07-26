@@ -5,6 +5,7 @@ import { PostCard } from './PostCard'
 import { PostSkeleton } from './PostSkeleton'
 import { useLikedPosts } from '../hooks/useLikedPosts'
 import { useSavedPosts } from '../hooks/useSavedPosts'
+import { getErrorMessage } from '../../../lib/utils'
 
 type Tab = 'posts' | 'liked' | 'saved'
 
@@ -32,7 +33,7 @@ function LikedPostsFeed() {
         <Heart size={32} className="text-red-400 mb-3" />
         <p className="text-sm text-red-500 dark:text-red-400 mb-1">Failed to load liked posts</p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-          {error instanceof Error ? error.message : 'An error occurred'}
+          {getErrorMessage(error)}
         </p>
         <button
           onClick={() => refetch()}
@@ -90,7 +91,7 @@ function SavedPostsFeed() {
         <FileText size={32} className="text-red-400 mb-3" />
         <p className="text-sm text-red-500 dark:text-red-400 mb-1">Failed to load saved posts</p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-          {error instanceof Error ? error.message : 'An error occurred'}
+          {getErrorMessage(error)}
         </p>
         <button
           onClick={() => refetch()}

@@ -5,6 +5,7 @@ import { userApi } from '../api/userApi'
 import { useAuthStore } from '../../../stores/authStore'
 import { stompClient } from '../../../lib/stompClient'
 import { getStompCleanupFunctions } from './useLogin'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useDeleteAccount() {
   const navigate = useNavigate()
@@ -20,8 +21,8 @@ export function useDeleteAccount() {
       navigate('/login', { replace: true })
       toast.success('Your account has been deleted.')
     },
-    onError: () => {
-      toast.error('Failed to delete account. Please try again.')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }

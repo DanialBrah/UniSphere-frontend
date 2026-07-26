@@ -9,6 +9,7 @@ import {
   ChevronLeft, ChevronRight, Moon, Sun,
 } from 'lucide-react'
 import { Logo } from '../ui/Logo'
+import { ConnectionBanner } from './ConnectionBanner'
 import { useAuth } from '../../hooks/useAuth'
 import { useThemeStore } from '../../stores/themeStore'
 import { useLogout } from '../../features/identity/hooks/useLogout'
@@ -210,6 +211,8 @@ export function DashboardLayout({ children }: Props) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0F0A1A]">
+      <ConnectionBanner />
+
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
       <aside
         className={`

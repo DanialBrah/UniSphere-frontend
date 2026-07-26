@@ -8,6 +8,7 @@ import {
   stompClient,
   addStompConnectListener,
   addStompDisconnectListener,
+  addStompErrorListener,
 } from '../../../lib/stompClient'
 import { useChatStore } from '../../../stores/chatStore'
 import { useAuthStore } from '../../../stores/authStore'
@@ -239,4 +240,17 @@ export function useGlobalMessagingSubscription() {
     const removeConnect = addStompConnectListener(subscribeToTopics)
     return () => removeConnect()
   }, [data, allConversations, conversationIds, queryClient, incrementUnread])
+
+  // ── Effect 3: surface STOMP ERROR frames ──────────────────────────────────
+  // Covers both a CONNECT auth failure and a rate-limit breach on SEND (both
+  // thrown server-side as MessageDeliveryException) — today these are silently
+  // dropped with zero user-visible feedback since no onStompError handler exists.
+  useEffect(() => addStompErrorListener((frame) => {
+    const detail = frame.headers?.message ?? ''
+    if (detail.includes('Too many messages')) {
+      toast.error('Too many messages', { description: 'Please slow down and try again shortly.' })
+    } else {
+      toast.error('Connection error', { description: detail || 'Something went wrong with the live connection.' })
+    }
+  }), [])
 }

@@ -2,6 +2,7 @@ import { Loader2, FileText } from 'lucide-react'
 import { PostCard } from './PostCard'
 import { PostSkeleton } from './PostSkeleton'
 import { useUserPosts } from '../hooks/useUserPosts'
+import { getErrorMessage } from '../../../lib/utils'
 
 interface Props {
   userId: number
@@ -29,7 +30,7 @@ export function UserPostsFeed({ userId }: Props) {
         <FileText size={32} className="text-red-400 mb-3" />
         <p className="text-sm text-red-500 dark:text-red-400 mb-1">Failed to load posts</p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-          {error instanceof Error ? error.message : 'An error occurred'}
+          {getErrorMessage(error)}
         </p>
         <button
           onClick={() => refetch()}

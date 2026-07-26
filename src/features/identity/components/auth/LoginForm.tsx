@@ -9,11 +9,13 @@ import { loginSchema, type LoginFormData } from '../../schemas'
 import { inputClass } from './formUtils'
 import { FieldError, Label } from './FormPrimitives'
 import { getErrorMessage } from '../../../../lib/utils'
+import { useCooldown } from '../../../../hooks/useCooldown'
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const { mutate, isPending, isSuccess, error } = useLogin()
+  const cooldown = useCooldown(error)
 
   const {
     register,
@@ -79,13 +81,13 @@ export function LoginForm() {
       {/* Submit */}
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || cooldown > 0}
         className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
       >
         {isPending && (
           <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
         )}
-        {isPending ? 'Signing in…' : 'Sign in'}
+        {cooldown > 0 ? `Try again in ${cooldown}s` : isPending ? 'Signing in…' : 'Sign in'}
       </button>
 
       {/* Footer link */}

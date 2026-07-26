@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react'
 import { CommentItem } from './CommentItem'
 import { CommentForm } from './CommentForm'
 import { useComments } from '../hooks/useComments'
+import { getErrorMessage } from '../../../lib/utils'
 
 interface Props {
   postId: number
@@ -28,7 +29,7 @@ export function CommentList({ postId }: Props) {
             Failed to load comments
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {error instanceof Error ? error.message : 'An error occurred'}
+            {getErrorMessage(error)}
           </p>
         </div>
       )}

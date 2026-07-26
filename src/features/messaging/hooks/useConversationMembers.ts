@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { conversationApi } from '../api/conversationApi'
 import { messagingKeys } from './useConversations'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useConversationMembers(conversationId: number | null) {
   return useQuery({
@@ -28,7 +29,7 @@ export function usePromoteMember(conversationId: number) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 403) toast.error('Only an admin can promote members')
       else if (status === 400) toast.error('User is already an admin or not in this group')
-      else toast.error('Failed to promote member')
+      else toast.error(getErrorMessage(err))
     },
   })
 }
@@ -47,7 +48,7 @@ export function useRemoveMember(conversationId: number) {
     onError: (err: unknown) => {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 403) toast.error('Only the group admin can remove members')
-      else toast.error('Failed to remove member')
+      else toast.error(getErrorMessage(err))
     },
   })
 }

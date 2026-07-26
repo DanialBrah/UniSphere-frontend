@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { chatbotApi } from '../api/chatbotApi'
+import { getErrorMessage } from '../../../lib/utils'
 import type { ChatMessage } from '../types'
 
 const HISTORY_KEY = ['chatbot-history'] as const
@@ -11,7 +12,13 @@ export function useChatbot() {
   const [sessionMessages, setSessionMessages] = useState<ChatMessage[]>([])
 
   // Fetch history from backend — returns ChatTurn[] (role + text, no timestamp)
-  const { data: historyTurns, isLoading: historyLoading } = useQuery({
+  const {
+    data: historyTurns,
+    isLoading: historyLoading,
+    isError: isHistoryError,
+    error: historyError,
+    refetch: refetchHistory,
+  } = useQuery({
     queryKey: HISTORY_KEY,
     queryFn: chatbotApi.getHistory,
   })
@@ -22,7 +29,7 @@ export function useChatbot() {
     [historyTurns],
   )
 
-  const { mutate: sendMessage, isPending } = useMutation({
+  const { mutate: sendMessage, isPending, error: sendError } = useMutation({
     mutationFn: (message: string) => chatbotApi.chat({ message }),
 
     onMutate: (message) => {
@@ -45,7 +52,7 @@ export function useChatbot() {
     },
 
     onError: (_error, _variables, context) => {
-      toast.error('Failed to get a response. Please try again.')
+      toast.error(getErrorMessage(_error))
       if (context?.previousMessages) {
         setSessionMessages(context.previousMessages)
       }
@@ -59,16 +66,20 @@ export function useChatbot() {
       queryClient.setQueryData(HISTORY_KEY, [])
       queryClient.invalidateQueries({ queryKey: HISTORY_KEY })
     },
-    onError: () => {
-      toast.error('Failed to clear session')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 
   return {
     messages: [...historyMessages, ...sessionMessages],
     historyLoading,
+    isHistoryError,
+    historyError,
+    refetchHistory,
     sendMessage,
     isPending,
+    sendError,
     clearSession,
     isClearing,
   }

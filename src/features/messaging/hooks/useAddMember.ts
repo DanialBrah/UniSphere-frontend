@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { conversationApi } from '../api/conversationApi'
 import { messagingKeys } from './useConversations'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useAddMember(conversationId: number) {
   const queryClient = useQueryClient()
@@ -17,7 +18,7 @@ export function useAddMember(conversationId: number) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 403) toast.error('Only the group admin can add members')
       else if (status === 409) toast.error('User is already in this group')
-      else toast.error('Failed to add member')
+      else toast.error(getErrorMessage(err))
     },
   })
 }

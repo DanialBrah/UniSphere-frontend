@@ -5,6 +5,7 @@ import { PostCard } from '../components/PostCard'
 import { PostSkeleton } from '../components/PostSkeleton'
 import { CommentList } from '../components/CommentList'
 import { usePost } from '../hooks/usePost'
+import { getErrorMessage } from '../../../lib/utils'
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -12,7 +13,7 @@ export default function PostDetailPage() {
   const postId = Number(id)
   const isValidId = id != null && Number.isFinite(postId) && postId > 0
 
-  const { data: post, isLoading, isError } = usePost(postId, { enabled: isValidId })
+  const { data: post, isLoading, isError, error } = usePost(postId, { enabled: isValidId })
 
   return (
     <DashboardLayout>
@@ -29,8 +30,8 @@ export default function PostDetailPage() {
         {/* Loading */}
         {isLoading && isValidId && <PostSkeleton />}
 
-        {/* Error or Invalid ID */}
-        {(isError || !isValidId) && (
+        {/* Invalid ID */}
+        {!isValidId && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <AlertTriangle size={32} className="text-red-400 mb-3" />
             <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
@@ -38,6 +39,19 @@ export default function PostDetailPage() {
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               This post may have been deleted or you may not have access.
+            </p>
+          </div>
+        )}
+
+        {/* Fetch error */}
+        {isValidId && isError && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <AlertTriangle size={32} className="text-red-400 mb-3" />
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              Couldn't load post
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {getErrorMessage(error)}
             </p>
           </div>
         )}

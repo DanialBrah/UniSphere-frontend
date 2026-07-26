@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { commentApi } from '../api/commentApi'
 import { socialKeys } from '../types'
 import type { CommentResponse, SpringPage } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 interface InfiniteData {
   pages: SpringPage<CommentResponse>[]
@@ -44,10 +45,10 @@ export function useLikeComment(postId: number) {
       return { previous }
     },
 
-    onError: (_err, _commentId, context) => {
+    onError: (err, _commentId, context) => {
       if (context?.previous !== undefined)
         queryClient.setQueryData(socialKeys.postComments(postId), context.previous)
-      toast.error('Failed to update like')
+      toast.error(getErrorMessage(err))
     },
 
     onSettled: () => {

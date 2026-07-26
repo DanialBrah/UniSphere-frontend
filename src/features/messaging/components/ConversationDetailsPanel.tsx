@@ -3,6 +3,7 @@ import { X, UserPlus, Trash2, Loader2, Crown, UserMinus, ShieldCheck } from 'luc
 import { useConversationMembers, usePromoteMember, useRemoveMember } from '../hooks/useConversationMembers'
 import { useDeleteConversation } from '../hooks/useDeleteConversation'
 import { AddMemberModal } from './AddMemberModal'
+import { getErrorMessage } from '../../../lib/utils'
 import type { ConversationResponse } from '../types'
 
 interface Props {
@@ -18,7 +19,13 @@ function getConvName(conv: ConversationResponse, currentUserId: number) {
 }
 
 export function ConversationDetailsPanel({ conversation, currentUserId, onClose }: Props) {
-  const { data: members, isLoading } = useConversationMembers(conversation.id)
+  const {
+    data: members,
+    isLoading,
+    isError: isMembersError,
+    error: membersError,
+    refetch: refetchMembers,
+  } = useConversationMembers(conversation.id)
   const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(conversation.id)
   const { mutate: promoteMember, isPending: isPromoting } = usePromoteMember(conversation.id)
   const { mutate: deleteConversation, isPending: isDeleting } = useDeleteConversation()
@@ -93,6 +100,20 @@ export function ConversationDetailsPanel({ conversation, currentUserId, onClose 
             {isLoading && (
               <div className="flex justify-center py-4">
                 <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
+              </div>
+            )}
+
+            {isMembersError && (
+              <div className="flex items-center justify-between gap-2 mb-2 px-1">
+                <p className="text-xs text-red-500 dark:text-red-400">
+                  {getErrorMessage(membersError)} — showing cached list.
+                </p>
+                <button
+                  onClick={() => refetchMembers()}
+                  className="text-xs text-violet-500 hover:underline shrink-0"
+                >
+                  Retry
+                </button>
               </div>
             )}
 

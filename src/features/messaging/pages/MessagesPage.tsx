@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, AlertTriangle } from 'lucide-react'
 import { DashboardLayout } from '../../../components/layout/DashboardLayout'
 import { useAuth } from '../../../hooks/useAuth'
 import { useChatStore } from '../../../stores/chatStore'
@@ -11,11 +11,17 @@ import { MessageInput } from '../components/MessageInput'
 import { useActiveConversation } from '../hooks/useActiveConversation'
 import { useSendMessage } from '../hooks/useSendMessage'
 import { useMarkRead } from '../hooks/useMarkRead'
+import { getErrorMessage } from '../../../lib/utils'
 
 export default function MessagesPage() {
   const { user } = useAuth()
   const { activeConversationId, setActive, clearUnread } = useChatStore()
-  const { data: activeConv } = useActiveConversation(activeConversationId)
+  const {
+    data: activeConv,
+    isError: isActiveConvError,
+    error: activeConvError,
+    refetch: refetchActiveConv,
+  } = useActiveConversation(activeConversationId)
   const { mutate: sendMessage } = useSendMessage()
   const { mutate: markRead } = useMarkRead()
   const [detailsForId, setDetailsForId] = useState<number | null>(null)
@@ -76,6 +82,24 @@ export default function MessagesPage() {
               <MessageList conversationId={activeConversationId} currentUserId={user.id} />
               <MessageInput conversationId={activeConversationId} onSend={handleSend} />
             </>
+          ) : activeConversationId && isActiveConvError ? (
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
+              <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-red-500" />
+              </div>
+              <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                Couldn't load this conversation
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                {getErrorMessage(activeConvError)}
+              </p>
+              <button
+                onClick={() => refetchActiveConv()}
+                className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline"
+              >
+                Retry
+              </button>
+            </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
               <div className="w-16 h-16 rounded-2xl bg-violet-100 dark:bg-[#2D1F4D] flex items-center justify-center">

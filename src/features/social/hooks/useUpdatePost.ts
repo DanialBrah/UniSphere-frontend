@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { postApi } from '../api/postApi'
 import { socialKeys } from '../types'
 import type { UpdatePostRequest } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useUpdatePost(postId: number) {
   const queryClient = useQueryClient()
@@ -14,8 +15,8 @@ export function useUpdatePost(postId: number) {
       queryClient.invalidateQueries({ queryKey: socialKeys.feedInfinite() })
       toast.success('Post updated')
     },
-    onError: () => {
-      toast.error('Failed to update post')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }

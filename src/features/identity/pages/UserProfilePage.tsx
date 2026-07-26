@@ -7,13 +7,14 @@ import { ProfileSkeleton }  from '../components/profile/ProfileSkeleton'
 import { ProfileError }     from '../components/profile/ProfileError'
 import { UserPostsFeed }    from '../../social/components/UserPostsFeed'
 import { useUserById }      from '../hooks/useUserById'
+import { getErrorMessage }  from '../../../lib/utils'
 
 export default function UserProfilePage() {
   const { id } = useParams<{ id: string }>()
   const parsedId = id ? parseInt(id, 10) : NaN
   const userId = !isNaN(parsedId) ? parsedId : null
   const navigate = useNavigate()
-  const { data: user, isLoading, isError } = useUserById(userId)
+  const { data: user, isLoading, isError, error } = useUserById(userId)
 
   return (
     <DashboardLayout>
@@ -27,7 +28,7 @@ export default function UserProfilePage() {
         </button>
 
         {isLoading && !user && <ProfileSkeleton />}
-        {isError && <ProfileError />}
+        {isError && <ProfileError message={getErrorMessage(error)} />}
 
         {user && (
           <>

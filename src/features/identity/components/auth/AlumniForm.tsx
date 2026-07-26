@@ -9,10 +9,12 @@ import { alumniSchema, type AlumniFormData } from '../../schemas'
 import { inputClass } from './formUtils'
 import { FieldError, Label, PasswordInput, OptionalSection } from './FormPrimitives'
 import { getErrorMessage } from '../../../../lib/utils'
+import { useCooldown } from '../../../../hooks/useCooldown'
 
 export function AlumniForm({ onBack }: { onBack: () => void }) {
   const navigate = useNavigate()
   const { mutate, isPending, isSuccess, error } = useRegister('ALUMNI')
+  const cooldown = useCooldown(error)
   const { register, handleSubmit, formState: { errors } } = useForm<AlumniFormData>({
     resolver: zodResolver(alumniSchema) as unknown as Resolver<AlumniFormData>,
   })
@@ -74,9 +76,9 @@ export function AlumniForm({ onBack }: { onBack: () => void }) {
         <button type="button" onClick={onBack} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2D1F4D] text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
           <ArrowLeft size={14} /> Back
         </button>
-        <button type="submit" disabled={isPending} className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+        <button type="submit" disabled={isPending || cooldown > 0} className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
           {isPending && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-          {isPending ? 'Creating account…' : 'Create account'}
+          {cooldown > 0 ? `Try again in ${cooldown}s` : isPending ? 'Creating account…' : 'Create account'}
         </button>
       </div>
     </form>

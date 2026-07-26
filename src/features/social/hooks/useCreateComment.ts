@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { commentApi } from '../api/commentApi'
 import { socialKeys } from '../types'
 import type { CreateCommentRequest, PostResponse } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useCreateComment(postId: number) {
   const queryClient = useQueryClient()
@@ -20,8 +21,8 @@ export function useCreateComment(postId: number) {
         queryClient.invalidateQueries({ queryKey: socialKeys.commentReplies(postId, variables.parentCommentId) })
       }
     },
-    onError: () => {
-      toast.error('Failed to post comment')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }

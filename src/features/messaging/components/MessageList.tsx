@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
 import { useChatStore } from '../../../stores/chatStore'
@@ -8,6 +9,7 @@ import { useStompChat } from '../hooks/useStompChat'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { messageApi } from '../api/messageApi'
 import { messagingKeys } from '../hooks/useConversations'
+import { getErrorMessage } from '../../../lib/utils'
 import type { MessageResponse } from '../types'
 import type { SpringPage } from '../../social/types'
 import type { InfiniteData } from '@tanstack/react-query'
@@ -26,7 +28,8 @@ export function MessageList({ conversationId, currentUserId }: Props) {
   const { typingUsers } = useChatStore()
   const queryClient = useQueryClient()
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMessages(conversationId)
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error, refetch } =
+    useMessages(conversationId)
   useStompChat(conversationId)
 
   const typingNames = Object.values(typingUsers[conversationId] ?? {})
@@ -91,12 +94,28 @@ export function MessageList({ conversationId, currentUserId }: Props) {
         },
       )
     },
+    onError: (err) => {
+      toast.error(getErrorMessage(err))
+    },
   })
 
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center px-6">
+        <AlertTriangle className="w-6 h-6 text-red-500 mb-1" />
+        <p className="text-sm text-red-500 dark:text-red-400">Couldn't load messages</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{getErrorMessage(error)}</p>
+        <button onClick={() => refetch()} className="text-xs text-violet-500 hover:underline mt-1">
+          Retry
+        </button>
       </div>
     )
   }

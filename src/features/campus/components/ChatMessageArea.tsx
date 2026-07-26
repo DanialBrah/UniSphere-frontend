@@ -1,15 +1,21 @@
 import { useRef, useEffect } from 'react'
-import { Bot, Loader2 } from 'lucide-react'
+import { Bot, Loader2, AlertTriangle } from 'lucide-react'
 import { ChatBubble } from './ChatBubble'
+import { getErrorMessage } from '../../../lib/utils'
 import type { ChatMessage } from '../types'
 
 interface Props {
   messages: ChatMessage[]
   historyLoading: boolean
   isPending: boolean
+  isHistoryError?: boolean
+  historyError?: unknown
+  onRetryHistory?: () => void
 }
 
-export function ChatMessageArea({ messages, historyLoading, isPending }: Props) {
+export function ChatMessageArea({
+  messages, historyLoading, isPending, isHistoryError, historyError, onRetryHistory,
+}: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -26,7 +32,29 @@ export function ChatMessageArea({ messages, historyLoading, isPending }: Props) 
         </div>
       )}
 
-      {!historyLoading && messages.length === 0 && (
+      {!historyLoading && isHistoryError && (
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-red-500" />
+          </div>
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Couldn't load chat history
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+            {getErrorMessage(historyError)}
+          </p>
+          {onRetryHistory && (
+            <button
+              onClick={onRetryHistory}
+              className="text-xs text-violet-500 hover:underline"
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      )}
+
+      {!historyLoading && !isHistoryError && messages.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
           <div className="w-16 h-16 rounded-2xl bg-violet-100 dark:bg-[#2D1F4D] flex items-center justify-center">
             <Bot className="w-8 h-8 text-violet-500" />

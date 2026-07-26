@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { Heart, MoreVertical, MessageCircle, Pencil, Trash2 } from 'lucide-react'
+import { Heart, MoreVertical, MessageCircle, Pencil, Trash2, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { RoleBadge } from './RoleBadge'
 import { CommentForm } from './CommentForm'
@@ -10,6 +10,7 @@ import { useDeleteComment } from '../hooks/useDeleteComment'
 import { useUpdateComment } from '../hooks/useUpdateComment'
 import { useAuth } from '../../../hooks/useAuth'
 import { inputClass } from '../utils/formUtils'
+import { getErrorMessage } from '../../../lib/utils'
 import type { CommentResponse } from '../types'
 
 interface Props {
@@ -30,7 +31,13 @@ export function CommentItem({ comment, isReply = false }: Props) {
   const deleteComment = useDeleteComment(comment.postId)
   const updateComment = useUpdateComment(comment.postId, comment.id)
 
-  const { data: replies = [] } = useCommentReplies(comment.postId, comment.id, showReplies)
+  const {
+    data: replies = [],
+    isLoading: repliesLoading,
+    isError: repliesError,
+    error: repliesErrorObj,
+    refetch: refetchReplies,
+  } = useCommentReplies(comment.postId, comment.id, showReplies)
 
   const isOwner = user?.id === comment.author.id
   const timestamp = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
@@ -203,7 +210,22 @@ export function CommentItem({ comment, isReply = false }: Props) {
           )}
 
           {/* Replies */}
-          {showReplies && replies.length > 0 && (
+          {showReplies && repliesLoading && (
+            <div className="mt-2 flex justify-center">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+            </div>
+          )}
+
+          {showReplies && repliesError && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-red-500 dark:text-red-400">
+              <span>{getErrorMessage(repliesErrorObj)}</span>
+              <button onClick={() => refetchReplies()} className="underline shrink-0">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {showReplies && !repliesError && replies.length > 0 && (
             <div className="mt-2 space-y-2">
               {replies.map((reply) => (
                 <CommentItem key={reply.id} comment={reply} isReply />

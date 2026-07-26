@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { conversationApi } from '../api/conversationApi'
 import { messagingKeys } from './useConversations'
 import type { CreateConversationRequest } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useCreateConversation() {
   const queryClient = useQueryClient()
@@ -12,8 +13,8 @@ export function useCreateConversation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: messagingKeys.conversationsInfinite() })
     },
-    onError: () => {
-      toast.error('Failed to create conversation')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }

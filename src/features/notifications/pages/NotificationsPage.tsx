@@ -1,13 +1,14 @@
-import { Bell, Loader2, CheckCheck } from 'lucide-react'
+import { Bell, Loader2, CheckCheck, AlertTriangle } from 'lucide-react'
 import { DashboardLayout } from '../../../components/layout/DashboardLayout'
 import { NotificationItem } from '../components/NotificationItem'
 import { NotificationSkeleton } from '../components/NotificationSkeleton'
 import { useNotifications } from '../hooks/useNotifications'
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead'
 import { useMarkAllNotificationsRead } from '../hooks/useMarkAllNotificationsRead'
+import { getErrorMessage } from '../../../lib/utils'
 
 export default function NotificationsPage() {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useNotifications()
+  const { data, isLoading, isError, error, refetch, isFetchingNextPage, hasNextPage, fetchNextPage } = useNotifications()
   const { mutate: markRead } = useMarkNotificationRead()
   const { mutate: markAll, isPending: isMarkingAll } = useMarkAllNotificationsRead()
 
@@ -42,6 +43,20 @@ export default function NotificationsPage() {
               <NotificationSkeleton />
               <NotificationSkeleton />
             </>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-center px-8">
+              <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <AlertTriangle size={24} className="text-red-500" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Couldn't load notifications</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs">{getErrorMessage(error)}</p>
+              <button
+                onClick={() => refetch()}
+                className="text-xs font-medium text-violet-600 dark:text-violet-400 hover:underline"
+              >
+                Retry
+              </button>
+            </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-center px-8">
               <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-[#1E1430] flex items-center justify-center">

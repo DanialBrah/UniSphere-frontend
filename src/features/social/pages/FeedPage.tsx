@@ -7,6 +7,7 @@ import { PostCard } from '../components/PostCard'
 import { PostSkeleton } from '../components/PostSkeleton'
 import { CreatePostModal } from '../components/CreatePostModal'
 import { useFeed } from '../hooks/useFeed'
+import { getErrorMessage } from '../../../lib/utils'
 
 export default function FeedPage() {
   const { data, isLoading, isError, error, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } = useFeed()
@@ -54,7 +55,7 @@ export default function FeedPage() {
               Failed to load feed
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-              {error instanceof Error ? error.message : 'An error occurred'}
+              {getErrorMessage(error)}
             </p>
             <button
               onClick={() => refetch()}

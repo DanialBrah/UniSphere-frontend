@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { PenSquare, Loader2, Search } from 'lucide-react'
+import { PenSquare, Loader2, Search, AlertTriangle } from 'lucide-react'
 import { ConversationItem } from './ConversationItem'
 import { NewConversationModal } from './NewConversationModal'
 import { useConversations } from '../hooks/useConversations'
+import { getErrorMessage } from '../../../lib/utils'
 import type { ConversationResponse } from '../types'
 
 interface Props {
@@ -15,7 +16,8 @@ export function ConversationList({ currentUserId, activeConversationId, onSelect
   const [showNewModal, setShowNewModal] = useState(false)
   const [search, setSearch] = useState('')
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useConversations()
+  const { data, isLoading, isError, error, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useConversations()
 
   const allConversations: ConversationResponse[] = useMemo(
     () => data?.pages.flatMap((p) => p.content) ?? [],
@@ -69,7 +71,18 @@ export function ConversationList({ currentUserId, activeConversationId, onSelect
           </div>
         )}
 
-        {!isLoading && filtered.length === 0 && (
+        {!isLoading && isError && (
+          <div className="flex flex-col items-center gap-2 py-12 text-center px-4">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+            <p className="text-sm text-red-500 dark:text-red-400">Couldn't load conversations</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{getErrorMessage(error)}</p>
+            <button onClick={() => refetch()} className="text-xs text-violet-500 hover:underline">
+              Retry
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !isError && filtered.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-12 text-center px-4">
             <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
             <button

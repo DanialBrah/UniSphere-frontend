@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
 import { queryClient } from './queryClient'
+import { parseApiError } from './utils'
 
 // Separate plain instance for the refresh call — avoids interceptor loops
 const refreshClient = axios.create({
@@ -90,8 +91,12 @@ api.interceptors.response.use(
       return api(originalRequest)
     } catch (refreshError) {
       drainQueue(null, refreshError)
-      useAuthStore.getState().logout()
-      queryClient.clear()
+      // A rate-limited refresh call is not an invalid refresh token — don't punish
+      // the user with a forced logout over a transient 429.
+      if (parseApiError(refreshError).status !== 429) {
+        useAuthStore.getState().logout()
+        queryClient.clear()
+      }
       return Promise.reject(refreshError)
     } finally {
       isRefreshing = false

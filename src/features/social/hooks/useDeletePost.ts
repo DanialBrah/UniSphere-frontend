@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { postApi } from '../api/postApi'
 import { socialKeys } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useDeletePost() {
   const queryClient = useQueryClient()
@@ -17,8 +18,8 @@ export function useDeletePost() {
       queryClient.invalidateQueries({ queryKey: ['social', 'userPosts'], exact: false })
       toast.success('Post deleted')
     },
-    onError: () => {
-      toast.error('Failed to delete post')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }

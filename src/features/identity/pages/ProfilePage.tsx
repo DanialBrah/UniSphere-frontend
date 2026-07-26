@@ -9,6 +9,7 @@ import { EditProfileModal }   from '../components/profile/EditProfileModal'
 import { ProfilePostsTabs }   from '../../social/components/ProfilePostsTabs'
 import { useProfile }         from '../hooks/useProfile'
 import { useDeleteAccount }   from '../hooks/useDeleteAccount'
+import { getErrorMessage }    from '../../../lib/utils'
 
 function DeleteAccountModal({ onConfirm, onCancel, isPending }: {
   onConfirm: () => void
@@ -56,7 +57,7 @@ function DeleteAccountModal({ onConfirm, onCancel, isPending }: {
 }
 
 export default function ProfilePage() {
-  const { data: profile, isLoading, isError } = useProfile()
+  const { data: profile, isLoading, isError, error } = useProfile()
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount()
   const [showEdit, setShowEdit] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -67,7 +68,7 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Profile</h1>
 
         {isLoading && !profile && <ProfileSkeleton />}
-        {isError && <ProfileError />}
+        {isError && <ProfileError message={getErrorMessage(error)} />}
 
         {profile && (
           <>

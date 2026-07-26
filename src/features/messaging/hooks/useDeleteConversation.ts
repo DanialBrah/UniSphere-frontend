@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { conversationApi } from '../api/conversationApi'
 import { messagingKeys } from './useConversations'
 import { useChatStore } from '../../../stores/chatStore'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useDeleteConversation() {
   const queryClient = useQueryClient()
@@ -21,7 +22,7 @@ export function useDeleteConversation() {
     onError: (err: unknown) => {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 403) toast.error('You don\'t have permission to delete this conversation')
-      else toast.error('Failed to delete conversation')
+      else toast.error(getErrorMessage(err))
     },
   })
 }

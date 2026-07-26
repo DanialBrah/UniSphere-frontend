@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { commentApi } from '../api/commentApi'
 import { socialKeys } from '../types'
 import type { UpdateCommentRequest } from '../types'
+import { getErrorMessage } from '../../../lib/utils'
 
 export function useUpdateComment(postId: number, commentId: number) {
   const queryClient = useQueryClient()
@@ -14,8 +15,8 @@ export function useUpdateComment(postId: number, commentId: number) {
       queryClient.invalidateQueries({ queryKey: socialKeys.postComments(postId) })
       toast.success('Comment updated')
     },
-    onError: () => {
-      toast.error('Failed to update comment')
+    onError: (error) => {
+      toast.error(getErrorMessage(error))
     },
   })
 }
