@@ -7,6 +7,7 @@ import { ProfileSkeleton }  from '../components/profile/ProfileSkeleton'
 import { ProfileError }     from '../components/profile/ProfileError'
 import { UserPostsFeed }    from '../../social/components/UserPostsFeed'
 import { useUserById }      from '../hooks/useUserById'
+import { FollowStatsBar }   from '../../connect/components/FollowStatsBar'
 import { getErrorMessage }  from '../../../lib/utils'
 
 export default function UserProfilePage() {
@@ -33,6 +34,7 @@ export default function UserProfilePage() {
         {user && (
           <>
             <ProfileHeader user={user} />
+            <FollowStatsBar userId={user.id} />
             <ProfileDetails user={user} />
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Posts</h3>

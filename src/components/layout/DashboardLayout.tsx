@@ -6,7 +6,7 @@ import {
   ShoppingBag, Briefcase, Calendar, FolderKanban, BookOpen,
   GraduationCap, Wrench, Search, Newspaper, MapPin,
   Bus, Users, Clock, Bot, UserCircle, LogOut,
-  ChevronLeft, ChevronRight, Moon, Sun,
+  ChevronLeft, ChevronRight, Moon, Sun, UserPlus,
 } from 'lucide-react'
 import { Logo } from '../ui/Logo'
 import { ConnectionBanner } from './ConnectionBanner'
@@ -32,6 +32,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',     icon: LayoutDashboard, to: '/dashboard' },
   { label: 'Feed',          icon: Rss,             to: '/feed',          group: 'Social'   },
+  { label: 'Connect',       icon: UserPlus,         to: '/connect',       group: 'Social'   },
   { label: 'Communities',   icon: Users2,           to: '/communities',   group: 'Social'   },
   { label: 'Messages',      icon: MessageSquare,    to: '/messages',      group: 'Social'   },
   { label: 'Notifications', icon: Bell,             to: '/notifications', group: 'Social'   },
@@ -193,16 +194,12 @@ export function DashboardLayout({ children }: Props) {
   const groups = [...new Set(NAV_ITEMS.map((i) => i.group ?? ''))]
 
   function confirmLogout() {
-    const { refreshToken } = useAuthStore.getState()
-    if (refreshToken) {
-      logoutMutation.mutate(
-        { refreshToken },
-        { onSettled: () => navigate('/login', { replace: true }) },
-      )
-    } else {
-      useAuthStore.getState().logout()
-      navigate('/login', { replace: true })
-    }
+    // The refresh cookie is HttpOnly, so the client can't tell whether a session exists —
+    // just call logout and let the server revoke and clear whatever it finds. useLogout's
+    // onSettled clears local state either way, so this always reaches a signed-out state.
+    logoutMutation.mutate(undefined, {
+      onSettled: () => navigate('/login', { replace: true }),
+    })
   }
 
   function isActive(to: string) {

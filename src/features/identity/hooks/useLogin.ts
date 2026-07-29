@@ -15,8 +15,8 @@ export function getStompCleanupFunctions() {
 export function useLogin() {
   return useMutation({
     mutationFn: authApi.login,
-    onSuccess: ({ accessToken, refreshToken, user }) => {
-      useAuthStore.getState().setAuth(accessToken, refreshToken, user)
+    onSuccess: ({ accessToken, user }) => {
+      useAuthStore.getState().setAuth(accessToken, user)
       stompClient.configure({ connectHeaders: { Authorization: `Bearer ${accessToken}` } })
       stompConnectCleanup = addStompConnectListener(() => useChatStore.getState().setStompConnected(true))
       stompDisconnectCleanup = addStompDisconnectListener(() => useChatStore.getState().setStompConnected(false))

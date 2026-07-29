@@ -2,19 +2,45 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
 import { queryClient } from './queryClient'
 import { parseApiError } from './utils'
+import type { UserProfileResponse } from '../features/identity/types/auth'
 
+// withCredentials is what makes the browser send (and store) the HttpOnly refresh_token
+// cookie on cross-origin calls — the SPA and API are different origins even in local dev.
 // Separate plain instance for the refresh call — avoids interceptor loops
 const refreshClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL + '/api/v1',
   headers: { 'Content-Type': 'application/json' },
   timeout: 15_000,
+  withCredentials: true,
 })
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL + '/api/v1',
   headers: { 'Content-Type': 'application/json' },
   timeout: 15_000,
+  withCredentials: true,
 })
+
+interface RefreshResult {
+  accessToken: string
+  user: UserProfileResponse
+}
+
+/**
+ * Exchanges the HttpOnly refresh cookie for a new access token. The cookie is attached and
+ * rotated by the browser — there is deliberately no token in the request or response body,
+ * so nothing here is reachable by any other script on the page.
+ *
+ * Shared by the 401 interceptor below and the app-load bootstrap, so both go through exactly
+ * one implementation of the refresh contract.
+ */
+export async function requestTokenRefresh(): Promise<RefreshResult> {
+  const { data: envelope } = await refreshClient.post<{
+    success: boolean
+    data: RefreshResult
+  }>('/auth/refresh')
+  return envelope.data
+}
 
 // ── Request: attach Bearer token ──────────────────────────────────────────────
 api.interceptors.request.use((config) => {
@@ -52,13 +78,6 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    const store = useAuthStore.getState()
-
-    if (!store.refreshToken) {
-      store.logout()
-      return Promise.reject(error)
-    }
-
     if (isRefreshing) {
       return new Promise<string>((resolve, reject) => {
         failedQueue.push({ resolve, reject })
@@ -73,25 +92,14 @@ api.interceptors.response.use(
     isRefreshing = true
 
     try {
-      const { data: envelope } = await refreshClient.post<{
-        success: boolean
-        data: {
-          accessToken: string
-          refreshToken: string
-          tokenType: string
-          expiresIn: number
-          user: Parameters<typeof store.setAuth>[2]
-        }
-      }>('/auth/refresh', { refreshToken: store.refreshToken })
-
-      const data = envelope.data
-      useAuthStore.getState().setAuth(data.accessToken, data.refreshToken, data.user)
-      drainQueue(data.accessToken, null)
-      originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+      const { accessToken, user } = await requestTokenRefresh()
+      useAuthStore.getState().setAuth(accessToken, user)
+      drainQueue(accessToken, null)
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`
       return api(originalRequest)
     } catch (refreshError) {
       drainQueue(null, refreshError)
-      // A rate-limited refresh call is not an invalid refresh token — don't punish
+      // A rate-limited refresh call is not an invalid session — don't punish
       // the user with a forced logout over a transient 429.
       if (parseApiError(refreshError).status !== 429) {
         useAuthStore.getState().logout()

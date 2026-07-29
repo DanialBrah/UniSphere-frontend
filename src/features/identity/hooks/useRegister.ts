@@ -27,8 +27,8 @@ const REGISTER_FN: Record<RegisterRole, (data: RegisterPayload) => Promise<AuthR
 export function useRegister(role: RegisterRole) {
   return useMutation({
     mutationFn: (data: RegisterPayload) => REGISTER_FN[role](data),
-    onSuccess: ({ accessToken, refreshToken, user }) => {
-      useAuthStore.getState().setAuth(accessToken, refreshToken, user)
+    onSuccess: ({ accessToken, user }) => {
+      useAuthStore.getState().setAuth(accessToken, user)
     },
   })
 }

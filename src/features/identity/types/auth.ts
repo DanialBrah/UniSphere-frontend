@@ -91,9 +91,12 @@ export type UserProfileResponse =
   | UniversityProfile
   | AdminProfile
 
+/**
+ * No refreshToken field by design — the backend returns it only in an HttpOnly cookie,
+ * so it is never visible to JavaScript.
+ */
 export interface AuthResponse {
   accessToken: string
-  refreshToken: string
   tokenType: 'Bearer'
   expiresIn: number
   user: UserProfileResponse
@@ -150,10 +153,6 @@ export interface RegisterClubRequest {
   phone?: string
   category?: string
   description?: string
-}
-
-export interface LogoutRequest {
-  refreshToken: string
 }
 
 export interface ForgotPasswordRequest {

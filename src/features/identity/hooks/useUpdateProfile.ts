@@ -11,9 +11,9 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => userApi.updateProfile(payload),
     onSuccess: (updatedUser) => {
-      const { accessToken, refreshToken } = useAuthStore.getState()
-      if (accessToken && refreshToken) {
-        useAuthStore.getState().setAuth(accessToken, refreshToken, updatedUser)
+      const { accessToken } = useAuthStore.getState()
+      if (accessToken) {
+        useAuthStore.getState().setAuth(accessToken, updatedUser)
       }
       queryClient.setQueryData(['auth', 'me'], updatedUser)
       toast.success('Profile updated')

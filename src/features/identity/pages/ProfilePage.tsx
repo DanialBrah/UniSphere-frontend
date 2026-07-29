@@ -9,6 +9,7 @@ import { EditProfileModal }   from '../components/profile/EditProfileModal'
 import { ProfilePostsTabs }   from '../../social/components/ProfilePostsTabs'
 import { useProfile }         from '../hooks/useProfile'
 import { useDeleteAccount }   from '../hooks/useDeleteAccount'
+import { FollowStatsBar }     from '../../connect/components/FollowStatsBar'
 import { getErrorMessage }    from '../../../lib/utils'
 
 function DeleteAccountModal({ onConfirm, onCancel, isPending }: {
@@ -73,6 +74,7 @@ export default function ProfilePage() {
         {profile && (
           <>
             <ProfileHeader user={profile} onEditClick={() => setShowEdit(true)} />
+            <FollowStatsBar userId={profile.id} isOwnProfile />
             <ProfileDetails user={profile} />
             <div className="mt-6">
               <ProfilePostsTabs userId={profile.id} />

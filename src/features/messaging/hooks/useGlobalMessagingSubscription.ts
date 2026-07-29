@@ -14,6 +14,7 @@ import { useChatStore } from '../../../stores/chatStore'
 import { useAuthStore } from '../../../stores/authStore'
 import { useConversations, messagingKeys } from './useConversations'
 import { notificationKeys } from '../../notifications/hooks/useNotifications'
+import { actorLabel } from '../../notifications/types'
 import type { ConversationResponse, MessageResponse } from '../types'
 import type { NotificationResponse, UnreadCountResponse } from '../../notifications/types'
 import type { SpringPage } from '../../social/types'
@@ -21,10 +22,13 @@ import type { SpringPage } from '../../social/types'
 type MessagesInfiniteData = InfiniteData<SpringPage<MessageResponse>>
 type NotifsInfiniteData   = InfiniteData<SpringPage<NotificationResponse>>
 
+// Keep in sync with TYPE_CONFIG in NotificationItem.tsx — both need an entry per emitted
+// NotificationType, or the notification degrades to the generic fallback below.
 const NOTIF_LABELS: Record<string, string> = {
-  LIKE:    'Someone liked your post',
-  COMMENT: 'Someone commented on your post',
-  MENTION: 'Someone mentioned you in a post',
+  LIKE:    'liked your post',
+  COMMENT: 'commented on your post',
+  MENTION: 'mentioned you in a post',
+  FOLLOW:  'started following you',
 }
 
 // ── sessionStorage helpers ────────────────────────────────────────────────────
@@ -92,7 +96,10 @@ export function useGlobalMessagingSubscription() {
         if (!raw.notifType) return
 
         const notification = raw as unknown as NotificationResponse
-        const label = NOTIF_LABELS[notification.notifType] ?? 'You have a new notification'
+        const action = NOTIF_LABELS[notification.notifType]
+        const label = action
+          ? `${actorLabel(notification)} ${action}`
+          : 'You have a new notification'
 
         toast(label, {
           description: 'Tap to view your notifications',

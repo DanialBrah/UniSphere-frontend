@@ -4,7 +4,6 @@ import type {
   AuthResponse,
   ForgotPasswordRequest,
   LoginRequest,
-  LogoutRequest,
   RegisterAlumniRequest,
   RegisterClubRequest,
   RegisterEmployerRequest,
@@ -31,8 +30,9 @@ export const authApi = {
   registerClub: (body: RegisterClubRequest) =>
     api.post<ApiResponse<AuthResponse>>('/auth/register/club', body).then(unwrap),
 
-  logout: (body: LogoutRequest) =>
-    api.post<ApiResponse<null>>('/auth/logout', body).then(() => undefined),
+  // No body — the server reads and clears the HttpOnly refresh cookie itself.
+  logout: () =>
+    api.post<ApiResponse<null>>('/auth/logout').then(() => undefined),
 
   forgotPassword: (body: ForgotPasswordRequest) =>
     api.post<ApiResponse<null>>('/auth/forgot-password', body).then(() => undefined),
