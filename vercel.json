@@ -1,0 +1,28 @@
+{
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'sha256-ONwPG1KPEcd77yQB0jqgbvxMUsteTx3VGuH7qZ/iJPE=' 'sha256-OZ8fV1LyYzeHG9AkHyfT475ySd4uUdtZCJtVMlS/Ij8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.us-west-004.backblazeb2.com/unisphere-posts/ https://storage.googleapis.com/unisphere-media-bucket/; media-src 'self' blob: https://s3.us-west-004.backblazeb2.com/unisphere-posts/ https://storage.googleapis.com/unisphere-media-bucket/; font-src 'self' data:; connect-src 'self' https://unisphere-backend-xwfc.onrender.com wss://unisphere-backend-xwfc.onrender.com https://s3.us-west-004.backblazeb2.com/unisphere-posts/ https://storage.googleapis.com/unisphere-media-bucket/" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" }
+      ]
+    }
+  ]
+}

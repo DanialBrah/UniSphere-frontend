@@ -1,10 +1,12 @@
 # Stage 1: Build
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+# `ci`, not `install`: builds the locked tree and fails loudly on lockfile drift,
+# so a compose build can't quietly differ from what CI tested.
+RUN npm ci
 
 COPY . .
 

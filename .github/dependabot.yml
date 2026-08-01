@@ -1,0 +1,25 @@
+version: 2
+
+updates:
+  # Grouped so a quiet week is one PR to review rather than eight. Dev and runtime
+  # deps are split because only the latter reach users' browsers.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      production-dependencies:
+        dependency-type: production
+      development-dependencies:
+        dependency-type: development
+
+  # The workflow pins actions to commit SHAs, which never move — without this they
+  # would silently rot, including past security fixes.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3

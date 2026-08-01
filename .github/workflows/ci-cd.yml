@@ -2,49 +2,110 @@ name: UniSphere Frontend CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+
+# No job writes to the repo; SonarQube and the CI backend authenticate with their
+# own secrets, so GITHUB_TOKEN never needs more than read.
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel an in-flight main run — that is the commit the host deploys.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  IMAGE_NAME: unisphere-frontend
+  NODE_VERSION: '24'
 
 jobs:
+  # ── Build & test ──────────────────────────────────────────────────────────────
+  # Source of truth for tests and coverage. Hosted, so it still gates when the
+  # self-hosted machine is off. `npm run build` runs `tsc -b` first, so this is
+  # also the type check.
   build-test:
     name: Build & Test Frontend
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
+      # `ci`, not `install`: installs exactly the locked tree and fails on a
+      # package.json/package-lock.json mismatch instead of silently resolving
+      # newer versions that were never tested locally.
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint
         run: npm run lint
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      # Lets sonar-scan report coverage without re-running the suite on the laptop.
+      - name: Upload coverage report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 7
 
       - name: Build React app
         run: npm run build
 
+  # ── Dependency vulnerabilities ────────────────────────────────────────────────
+  # The app ships as a static bundle built by the host, so there is no image to
+  # scan — npm dependencies are the entire supply chain. Trivy reads
+  # package-lock.json directly.
+  dependency-scan:
+    name: Dependency Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Scan dependencies for vulnerabilities
+        # Pinned to a commit SHA, not a tag: aquasecurity/trivy-action had its version tags
+        # hijacked in a March 2026 supply-chain compromise (GHSA-69fq-xp46-6x23). This SHA is
+        # v0.35.0, the one release confirmed protected by GitHub's immutable-releases feature.
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          # Each entry has to carry a written reachability justification.
+          trivyignores: .trivyignore
+
+  # ── End-to-end ────────────────────────────────────────────────────────────────
   e2e-test:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    # Don't boot a backend + three browsers just to discover lint was broken.
+    needs: build-test
+    env:
+      # `latest` on purpose: both repos move together, so testing the frontend against the
+      # current backend is what makes this job worth running — it catches integration drift
+      # the day it appears. The trade-off is that an unrelated backend push can turn a
+      # frontend PR red. When that happens, set the BACKEND_IMAGE_TAG repo variable to a
+      # known-good tag to get a stable baseline, then clear it again.
+      BACKEND_IMAGE_TAG: ${{ vars.BACKEND_IMAGE_TAG || 'latest' }}
+      # Cross-browser coverage costs ~3x the runtime, which is not worth paying on
+      # every push. PRs get a fast chromium signal; main gets the full matrix.
+      PW_BROWSERS: ${{ github.ref == 'refs/heads/main' && 'chromium firefox webkit' || 'chromium' }}
+      PW_PROJECT_ARGS: ${{ github.ref == 'refs/heads/main' && ' ' || '--project=chromium' }}
     services:
       mysql:
         image: mysql:8.0
@@ -70,19 +131,33 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      # Browser binaries are ~500MB and unchanged between runs; only the apt-level
+      # system deps have to be reinstalled each time.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ env.PW_BROWSERS }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps ${{ env.PW_BROWSERS }}
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps ${{ env.PW_BROWSERS }}
 
       - name: Start backend container
         run: |
@@ -100,7 +175,7 @@ jobs:
             -e B2_KEY_ID=${{ secrets.B2_KEY_ID }} \
             -e B2_APPLICATION_KEY=${{ secrets.B2_APPLICATION_KEY }} \
             -e APP_SEEDING_ENABLED=true \
-            danialx003/unisphere-backend:latest
+            danialx003/unisphere-backend:${{ env.BACKEND_IMAGE_TAG }}
 
       - name: Wait for backend readiness
         run: |
@@ -112,74 +187,74 @@ jobs:
             echo "Waiting for backend... ($i)"
             sleep 2
           done
-          echo "Backend failed to become ready"
+          echo "::error::Backend failed to become ready"
           docker logs unisphere-backend-ci
           exit 1
 
+      # These are read by `vite build` inside Playwright's webServer, which is what
+      # inlines them into the bundle under test.
       - name: Run Playwright tests
         env:
           VITE_API_URL: http://localhost:8081
           VITE_WS_URL: http://localhost:8081/ws
-        run: npm run test:e2e
+        run: npm run test:e2e -- ${{ env.PW_PROJECT_ARGS }}
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 14
 
+      - name: Dump backend logs on failure
+        if: failure()
+        run: docker logs unisphere-backend-ci
+
       - name: Stop backend container
         if: always()
         run: docker rm -f unisphere-backend-ci
 
-  push:
-    name: Push Docker Image
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [build-test, sonar-scan, e2e-test]
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
-
+  # ── Static analysis ───────────────────────────────────────────────────────────
+  # This is a required status check on main, so a PR cannot merge until it passes.
+  # That means the self-hosted runner has to be online — a PR sitting in "Expected —
+  # waiting for status to be reported" usually means the machine is off, not that
+  # anything is broken. Same arrangement as the backend repo.
   sonar-scan:
     name: SonarQube Scan
     runs-on: [self-hosted, sonar, frontend]
     timeout-minutes: 15
+    needs: build-test
+    # Self-hosted runner: keep fork PRs from executing untrusted code on the dev machine.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Sonar needs full history for new-code / blame attribution
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run tests with coverage
-        run: npm run test:coverage
+      # sonar-project.properties points sonar.javascript.lcov.reportPaths here.
+      - name: Download coverage report
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: coverage-lcov
+          path: coverage/
 
+      # Token goes through the environment, not argv — this runner is a shared
+      # desktop where any local process can read another's command line.
       - name: SonarQube analysis
-        run: npm run sonar -- -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=http://host.docker.internal:9000 -Dsonar.qualitygate.wait=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >-
+          npm run sonar --
+          -Dsonar.host.url=${{ vars.SONAR_HOST_URL || 'http://host.docker.internal:9000' }}
+          -Dsonar.qualitygate.wait=true

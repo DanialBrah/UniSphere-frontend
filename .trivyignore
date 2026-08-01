@@ -1,0 +1,11 @@
+# Suppressions must state why the vulnerability is unreachable in this app, not just
+# that it is inconvenient. Re-check each one whenever the dependency is upgraded.
+
+# react-router: "RSC Mode CSRF Bypass Allows Action Execution Before 400 Response".
+# Affects 7.12.0 - 8.2.0; 7.18.2 is the latest release and is still in range, so there
+# is no forward fix to take and npm's suggested "fix" is a downgrade to 7.11.0.
+# Not reachable here: the bypass is specific to React Server Components mode with server
+# actions. This is a client-only SPA — src/app/router.tsx uses createBrowserRouter and
+# the app ships as a static bundle with no RSC runtime and no server actions.
+# Remove this line once a fixed react-router is published.
+GHSA-qwww-vcr4-c8h2

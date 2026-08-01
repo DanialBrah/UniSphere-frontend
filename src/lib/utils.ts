@@ -17,7 +17,7 @@ export function parseApiError(err: unknown): ParsedApiError {
   }
 
   const envelope = err.response?.data as ApiErrorEnvelope | undefined
-  const retryAfterHeader = err.response?.headers['retry-after']
+  const retryAfterHeader = err.response?.headers?.['retry-after']
   const retryAfterSeconds = retryAfterHeader != null ? Number(retryAfterHeader) : Number.NaN
 
   return {
