@@ -10,7 +10,12 @@ const ROLE_COLOR: Record<string, string> = {
 }
 
 interface Props {
-  role: UserRole
+  /**
+   * News author payloads type this as a plain string server-side and fall back to the literal
+   * "UNKNOWN" when the author row is missing, so the prop has to admit more than UserRole.
+   * The ROLE_COLOR lookup already degrades to the ADMIN styling for anything unrecognised.
+   */
+  role: UserRole | 'UNKNOWN'
 }
 
 export function RoleBadge({ role }: Props) {

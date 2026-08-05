@@ -1,43 +1,44 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
-import { createCommentSchema } from '../schemas'
-import type { CreateCommentFormData } from '../schemas'
-import { useCreateComment } from '../hooks/useCreateComment'
-import { inputClass } from '../utils/formUtils'
+import { newsCommentSchema, type NewsCommentFormData } from '../schemas'
+import { useCreateNewsComment } from '../hooks/useNewsComments'
+import { inputClass } from '../../social/utils/formUtils'
 import { useAuth } from '../../../hooks/useAuth'
 import { userInitials } from '../../../lib/userDisplay'
 
 interface Props {
-  postId: number
+  articleId: number
   parentCommentId?: number
   onSuccess?: () => void
-  placeholder?: string
   compact?: boolean
 }
 
-export function CommentForm({ postId, parentCommentId, onSuccess, placeholder, compact = false }: Props) {
+export function NewsCommentForm({ articleId, parentCommentId, onSuccess, compact = false }: Props) {
   const { user } = useAuth()
-  const createComment = useCreateComment(postId)
+  const createComment = useCreateNewsComment(articleId)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CreateCommentFormData>({
-    resolver: zodResolver(createCommentSchema),
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<NewsCommentFormData>({
+    resolver: zodResolver(newsCommentSchema),
     defaultValues: { content: '' },
   })
 
-  async function onSubmit(data: CreateCommentFormData) {
+  async function onSubmit(data: NewsCommentFormData) {
     try {
       await createComment.mutateAsync({ content: data.content, parentCommentId })
       reset()
       onSuccess?.()
     } catch {
-      // error is handled by useCreateComment's onError toast
+      // useCreateNewsComment's onError already toasts.
     }
   }
 
   if (!user) return null
-
-  const initials = userInitials(user)
 
   const isPending = isSubmitting || createComment.isPending
 
@@ -45,7 +46,7 @@ export function CommentForm({ postId, parentCommentId, onSuccess, placeholder, c
     <form onSubmit={handleSubmit(onSubmit)} className={`flex gap-2 ${compact ? '' : 'mb-4'}`}>
       {!compact && (
         <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <span className="text-white text-xs font-bold">{initials}</span>
+          <span className="text-white text-xs font-bold">{userInitials(user)}</span>
         </div>
       )}
       <div className="flex-1 flex flex-col gap-1">
@@ -53,7 +54,7 @@ export function CommentForm({ postId, parentCommentId, onSuccess, placeholder, c
           <textarea
             {...register('content')}
             rows={compact ? 1 : 2}
-            placeholder={placeholder ?? (parentCommentId ? 'Write a reply…' : 'Write a comment…')}
+            placeholder={parentCommentId ? 'Write a reply…' : 'Share your thoughts…'}
             className={`${inputClass(!!errors.content)} resize-none flex-1`}
           />
           <button
@@ -64,9 +65,7 @@ export function CommentForm({ postId, parentCommentId, onSuccess, placeholder, c
             {isPending ? <Loader2 size={14} className="animate-spin" /> : 'Post'}
           </button>
         </div>
-        {errors.content && (
-          <p className="text-xs text-red-500">{errors.content.message}</p>
-        )}
+        {errors.content && <p className="text-xs text-red-500">{errors.content.message}</p>}
       </div>
     </form>
   )

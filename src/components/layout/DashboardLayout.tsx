@@ -20,7 +20,7 @@ import { useNotificationUnreadCount } from '../../features/notifications/hooks/u
 import { notificationKeys } from '../../features/notifications/hooks/useNotifications'
 import { notificationApi } from '../../features/notifications/api/notificationApi'
 import { stompClient, addStompConnectListener, addStompDisconnectListener } from '../../lib/stompClient'
-import type { UserProfileResponse } from '../../features/identity/types/auth'
+import { displayName, getInitials } from '../../lib/userDisplay'
 
 interface NavItem {
   label: string
@@ -52,29 +52,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Chatbot',       icon: Bot,              to: '/chatbot',       group: 'Campus'   },
   { label: 'Profile',       icon: UserCircle,       to: '/profile/me',    group: 'Account'  },
 ]
-
-function displayName(user: UserProfileResponse): string {
-  switch (user.role) {
-    case 'STUDENT':
-    case 'ALUMNI':
-    case 'ADMIN':
-      return user.fullName
-    case 'EMPLOYER':
-      return user.companyName
-    case 'CLUB':
-    case 'UNIVERSITY':
-      return user.name
-  }
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
 
 const ROLE_COLOR: Record<string, string> = {
   STUDENT:    'bg-primary-100 text-primary-700 dark:bg-primary/20 dark:text-primary-300',

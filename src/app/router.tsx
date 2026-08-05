@@ -156,10 +156,40 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // Static news paths are declared before /news/:id for readability only — react-router v7
+      // ranks routes by specificity, not declaration order, so /news/studio wins regardless.
       {
         path: '/news',
         lazy: async () => {
-          const Component = () => <div className="p-6">Campus News (Coming Soon)</div>
+          const { default: Component } = await import('../features/news/pages/NewsPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/news/studio',
+        lazy: async () => {
+          const { default: Component } = await import('../features/news/pages/NewsStudioPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/news/editor',
+        lazy: async () => {
+          const { default: Component } = await import('../features/news/pages/NewsEditorPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/news/editor/:id',
+        lazy: async () => {
+          const { default: Component } = await import('../features/news/pages/NewsEditorPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/news/:id',
+        lazy: async () => {
+          const { default: Component } = await import('../features/news/pages/NewsDetailPage')
           return { Component }
         },
       },

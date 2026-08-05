@@ -24,8 +24,11 @@ export type NotifType =
 /**
  * What `targetId` points at. FOLLOW sends `USER`; LIKE/COMMENT/MENTION send `POST`. Ignoring this
  * is what made a follow notification navigate to `/post/{userId}`.
+ *
+ * Campus News reuses LIKE and COMMENT with `NEWS_ARTICLE`, so the same notification type can
+ * point at either a post or an article — the target type is the only thing that distinguishes them.
  */
-export type NotifTargetType = 'POST' | 'USER'
+export type NotifTargetType = 'POST' | 'USER' | 'NEWS_ARTICLE'
 
 export interface NotificationResponse {
   id: number
@@ -56,6 +59,8 @@ export function notificationTargetPath(notification: NotificationResponse): stri
       return `/profile/${notification.targetId}`
     case 'POST':
       return `/post/${notification.targetId}`
+    case 'NEWS_ARTICLE':
+      return `/news/${notification.targetId}`
     default:
       return null
   }
