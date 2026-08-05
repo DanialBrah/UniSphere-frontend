@@ -54,6 +54,14 @@ export function useToggleSave() {
 
     onSettled: (_data, _err, postId) => {
       queryClient.invalidateQueries({ queryKey: socialKeys.post(postId) })
+      // Same reasoning as useToggleLike.ts — a post can also live in a community's own post
+      // feed cache, which this feature doesn't otherwise know about.
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return Array.isArray(key) && key[0] === 'communities' && key.includes('posts')
+        },
+      })
     },
   })
 }

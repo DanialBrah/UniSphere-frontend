@@ -64,6 +64,17 @@ export function useToggleLike() {
 
     onSettled: (_data, _err, postId) => {
       queryClient.invalidateQueries({ queryKey: socialKeys.post(postId) })
+      // A post can also be rendered inside a community's own post feed (via the shared
+      // PostCard) — that cache lives under a different key namespace this feature doesn't
+      // otherwise know about, so it's not covered by the optimistic patch above. A broad
+      // invalidate-by-predicate here is cheaper than importing communities' query keys and
+      // still only refetches queries that are actually mounted.
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return Array.isArray(key) && key[0] === 'communities' && key.includes('posts')
+        },
+      })
     },
   })
 }

@@ -82,7 +82,14 @@ export const router = createBrowserRouter([
       {
         path: '/communities',
         lazy: async () => {
-          const Component = () => <div className="p-6">Communities (Coming Soon)</div>
+          const { default: Component } = await import('../features/communities/pages/CommunitiesPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/community/:id',
+        lazy: async () => {
+          const { default: Component } = await import('../features/communities/pages/CommunityDetailPage')
           return { Component }
         },
       },

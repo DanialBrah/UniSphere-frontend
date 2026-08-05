@@ -20,6 +20,11 @@ export type NotifType =
   | 'STUDY_SESSION'
   | 'LOST_FOUND_CLAIM'
   | 'VERIFICATION'
+  | 'COMMUNITY_ANNOUNCEMENT'
+  | 'COMMUNITY_JOIN_REQUEST'
+  | 'COMMUNITY_JOIN_APPROVED'
+  | 'COMMUNITY_JOIN_REJECTED'
+  | 'COMMUNITY_ROLE_CHANGED'
 
 /**
  * What `targetId` points at. FOLLOW sends `USER`; LIKE/COMMENT/MENTION send `POST`. Ignoring this
@@ -28,7 +33,7 @@ export type NotifType =
  * Campus News reuses LIKE and COMMENT with `NEWS_ARTICLE`, so the same notification type can
  * point at either a post or an article — the target type is the only thing that distinguishes them.
  */
-export type NotifTargetType = 'POST' | 'USER' | 'NEWS_ARTICLE'
+export type NotifTargetType = 'POST' | 'USER' | 'NEWS_ARTICLE' | 'COMMUNITY'
 
 export interface NotificationResponse {
   id: number
@@ -61,6 +66,8 @@ export function notificationTargetPath(notification: NotificationResponse): stri
       return `/post/${notification.targetId}`
     case 'NEWS_ARTICLE':
       return `/news/${notification.targetId}`
+    case 'COMMUNITY':
+      return `/community/${notification.targetId}`
     default:
       return null
   }

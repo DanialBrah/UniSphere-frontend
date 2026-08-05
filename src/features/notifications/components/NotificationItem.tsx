@@ -1,16 +1,24 @@
-import { Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle, type LucideIcon } from 'lucide-react'
+import {
+  Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle,
+  Megaphone, CheckCircle2, XCircle, Shield, type LucideIcon,
+} from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 import { actorLabel, notificationTargetPath } from '../types'
 import type { NotificationResponse, NotifTargetType, NotifType } from '../types'
 
-// Partial by design: the backend enum has 15 types but only these four are emitted today.
+// Partial by design: the backend enum has 20 types but only these nine are emitted today.
 // The rest fall back to the generic config below until they're actually built.
 const TYPE_CONFIG: Partial<Record<NotifType, { icon: LucideIcon; color: string; bg: string; label: string }>> = {
   LIKE:    { icon: Heart,         color: 'text-rose-500',    bg: 'bg-rose-100 dark:bg-rose-900/30',       label: 'liked your post' },
   COMMENT: { icon: MessageSquare, color: 'text-blue-500',    bg: 'bg-blue-100 dark:bg-blue-900/30',       label: 'commented on your post' },
   MENTION: { icon: AtSign,        color: 'text-violet-500',  bg: 'bg-violet-100 dark:bg-violet-900/30',   label: 'mentioned you in a post' },
   FOLLOW:  { icon: UserPlus,      color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'started following you' },
+  COMMUNITY_ANNOUNCEMENT:  { icon: Megaphone,   color: 'text-violet-500',  bg: 'bg-violet-100 dark:bg-violet-900/30',   label: 'posted an announcement in your community' },
+  COMMUNITY_JOIN_REQUEST:  { icon: UserPlus,    color: 'text-blue-500',    bg: 'bg-blue-100 dark:bg-blue-900/30',       label: 'requested to join your community' },
+  COMMUNITY_JOIN_APPROVED: { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'approved your join request' },
+  COMMUNITY_JOIN_REJECTED: { icon: XCircle,     color: 'text-gray-500',    bg: 'bg-gray-100 dark:bg-gray-800',          label: 'rejected your join request' },
+  COMMUNITY_ROLE_CHANGED:  { icon: Shield,      color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'changed your role in a community' },
 }
 
 // LIKE and COMMENT are emitted for both posts and news articles, so the type alone can't say

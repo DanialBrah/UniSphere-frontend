@@ -33,6 +33,10 @@ interface PendingMedia {
 
 export function CreatePostModal({ existingPost, onClose }: Props) {
   const isEdit = !!existingPost
+  // COMMUNITY posts are visibility-locked server-side (see communities feature) and this form
+  // never offers that option, so editing one must never silently downgrade it via the select's
+  // default value.
+  const isCommunityPost = existingPost?.visibility === 'COMMUNITY'
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Files selected but not yet uploaded — previewed locally
@@ -52,6 +56,13 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
 
   type FormData = CreatePostFormData | UpdatePostFormData
 
+  // Narrows PostVisibility (which includes 'COMMUNITY') down to the 4 options this form
+  // actually offers — a community post falls back to 'PUBLIC' here, but that value is never
+  // submitted (see onSubmit) since the select is hidden for community posts.
+  const initialVisibility = existingPost && existingPost.visibility !== 'COMMUNITY'
+    ? existingPost.visibility
+    : 'PUBLIC'
+
   const {
     register,
     handleSubmit,
@@ -61,7 +72,7 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
     defaultValues: {
       content: existingPost?.content ?? '',
       title: existingPost?.title ?? '',
-      visibility: existingPost?.visibility ?? 'PUBLIC',
+      visibility: initialVisibility,
     },
   })
 
@@ -138,6 +149,9 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
         addMedia?: { mediaKey: string; mediaType: string }[]
         removeMediaIds?: number[]
       } = { ...(data as UpdatePostFormData) }
+      // Never let this form's (hidden, community-inapplicable) visibility field overwrite a
+      // community post's server-forced COMMUNITY visibility.
+      if (isCommunityPost) delete body.visibility
       if (uploaded.length > 0) body.addMedia = uploaded
       if (removeMediaIds.length > 0) body.removeMediaIds = removeMediaIds
       await updatePost.mutateAsync(body, { onSuccess: onClose })
@@ -205,16 +219,23 @@ export function CreatePostModal({ existingPost, onClose }: Props) {
             )}
           </div>
 
-          {/* Visibility */}
-          <div>
-            <select {...register('visibility')} className={inputClass()}>
-              {VISIBILITY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Visibility — community posts are visibility-locked server-side, so this form
+              never offers a way to change it (see CreateCommunityPostModal for that flow). */}
+          {isCommunityPost ? (
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              This is a community post — its visibility is managed by the community.
+            </p>
+          ) : (
+            <div>
+              <select {...register('visibility')} className={inputClass()}>
+                {VISIBILITY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Media */}
           <div className="space-y-2">

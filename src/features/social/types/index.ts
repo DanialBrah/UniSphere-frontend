@@ -3,7 +3,7 @@ import type { ApiResponse, UserRole } from '../../identity/types/auth'
 export type { ApiResponse, UserRole }
 
 export type PostType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'LINK' | 'POLL'
-export type PostVisibility = 'PUBLIC' | 'UNIVERSITY' | 'FRIENDS' | 'PRIVATE'
+export type PostVisibility = 'PUBLIC' | 'UNIVERSITY' | 'FRIENDS' | 'PRIVATE' | 'COMMUNITY'
 
 export interface PostAuthor {
   id: number
