@@ -33,7 +33,12 @@ export type NotifType =
  * Campus News reuses LIKE and COMMENT with `NEWS_ARTICLE`, so the same notification type can
  * point at either a post or an article — the target type is the only thing that distinguishes them.
  */
-export type NotifTargetType = 'POST' | 'USER' | 'NEWS_ARTICLE' | 'COMMUNITY'
+export type NotifTargetType =
+  | 'POST'
+  | 'USER'
+  | 'NEWS_ARTICLE'
+  | 'COMMUNITY'
+  | 'LOST_FOUND_ITEM'
 
 export interface NotificationResponse {
   id: number
@@ -68,6 +73,11 @@ export function notificationTargetPath(notification: NotificationResponse): stri
       return `/news/${notification.targetId}`
     case 'COMMUNITY':
       return `/community/${notification.targetId}`
+    // Despite the name, targetId here is the CLAIM id, not the item id — LostFoundClaimService
+    // sends targetType "LOST_FOUND_ITEM" with claim.getId() so a client can deep-link to the
+    // claim being decided. /lost-found/claims/:claimId resolves it and forwards to the item.
+    case 'LOST_FOUND_ITEM':
+      return `/lost-found/claims/${notification.targetId}`
     default:
       return null
   }

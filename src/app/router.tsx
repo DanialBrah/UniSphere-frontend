@@ -156,10 +156,53 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // Same specificity note as the news block below: /lost-found/new and
+      // /lost-found/claims/:claimId both out-rank /lost-found/:itemId because a static segment
+      // beats a dynamic one, regardless of the order they're declared in.
       {
         path: '/lost-found',
         lazy: async () => {
-          const Component = () => <div className="p-6">Lost & Found (Coming Soon)</div>
+          const { default: Component } = await import(
+            '../features/lostfound/pages/LostFoundBoardPage'
+          )
+          return { Component }
+        },
+      },
+      {
+        path: '/lost-found/new',
+        lazy: async () => {
+          const { default: Component } = await import(
+            '../features/lostfound/pages/LostFoundReportPage'
+          )
+          return { Component }
+        },
+      },
+      // Where a LOST_FOUND_CLAIM notification lands: its targetId is a claim id, not an item id,
+      // so this route resolves the claim and forwards to the item.
+      {
+        path: '/lost-found/claims/:claimId',
+        lazy: async () => {
+          const { default: Component } = await import(
+            '../features/lostfound/pages/LostFoundClaimRedirectPage'
+          )
+          return { Component }
+        },
+      },
+      {
+        path: '/lost-found/:itemId',
+        lazy: async () => {
+          const { default: Component } = await import(
+            '../features/lostfound/pages/LostFoundDetailPage'
+          )
+          return { Component }
+        },
+      },
+      {
+        path: '/lost-found/:itemId/edit',
+        lazy: async () => {
+          const { default: Component } = await import(
+            '../features/lostfound/pages/LostFoundReportPage'
+          )
           return { Component }
         },
       },
@@ -203,7 +246,7 @@ export const router = createBrowserRouter([
       {
         path: '/map',
         lazy: async () => {
-          const Component = () => <div className="p-6">Campus Map (Coming Soon)</div>
+          const { default: Component } = await import('../features/campus/pages/CampusMapPage')
           return { Component }
         },
       },
