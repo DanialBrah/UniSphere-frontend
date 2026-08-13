@@ -1,6 +1,7 @@
 import {
   Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle,
-  Megaphone, CheckCircle2, XCircle, Shield, Calendar, Briefcase, type LucideIcon,
+  Megaphone, CheckCircle2, XCircle, Shield, Calendar, Briefcase, FolderKanban, UserMinus,
+  type LucideIcon,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
@@ -21,6 +22,12 @@ const TYPE_CONFIG: Partial<Record<NotifType, { icon: LucideIcon; color: string; 
   COMMUNITY_ROLE_CHANGED:  { icon: Shield,      color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'changed your role in a community' },
   EVENT:                   { icon: Calendar,    color: 'text-primary',     bg: 'bg-primary-100 dark:bg-primary/20',     label: 'sent you an event update' },
   JOB:                     { icon: Briefcase,   color: 'text-teal-500',    bg: 'bg-teal-100 dark:bg-teal-900/30',       label: 'sent you a job update' },
+  // Unlike Jobs/Events, Projects puts its sub-kind directly in notifType — same idiom as the
+  // COMMUNITY_* rows above, so each gets its own direct entry rather than a targetType branch.
+  PROJECT_APPLICATION_RECEIVED: { icon: FolderKanban, color: 'text-teal-500',    bg: 'bg-teal-100 dark:bg-teal-900/30',       label: 'applied to join your project' },
+  PROJECT_APPLICATION_ACCEPTED: { icon: CheckCircle2,  color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'accepted your project application' },
+  PROJECT_APPLICATION_REJECTED: { icon: XCircle,       color: 'text-gray-500',    bg: 'bg-gray-100 dark:bg-gray-800',          label: 'declined your project application' },
+  PROJECT_MEMBER_REMOVED:       { icon: UserMinus,     color: 'text-red-500',     bg: 'bg-red-100 dark:bg-red-900/30',         label: 'removed you from a project' },
 }
 
 // LIKE and COMMENT are emitted for both posts and news articles, so the type alone can't say

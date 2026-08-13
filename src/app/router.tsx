@@ -174,10 +174,33 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // /projects/new and /projects/:projectId/edit both out-rank /projects/:projectId because a
+      // static segment beats a dynamic one, regardless of the order they're declared in.
       {
         path: '/projects',
         lazy: async () => {
-          const Component = () => <div className="p-6">Projects (Coming Soon)</div>
+          const { default: Component } = await import('../features/projects/pages/ProjectsBoardPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/projects/new',
+        lazy: async () => {
+          const { default: Component } = await import('../features/projects/pages/ProjectFormPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/projects/:projectId',
+        lazy: async () => {
+          const { default: Component } = await import('../features/projects/pages/ProjectDetailPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/projects/:projectId/edit',
+        lazy: async () => {
+          const { default: Component } = await import('../features/projects/pages/ProjectFormPage')
           return { Component }
         },
       },

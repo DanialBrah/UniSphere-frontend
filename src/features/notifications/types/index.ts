@@ -25,6 +25,14 @@ export type NotifType =
   | 'COMMUNITY_JOIN_APPROVED'
   | 'COMMUNITY_JOIN_REJECTED'
   | 'COMMUNITY_ROLE_CHANGED'
+  // Projects puts its notification's sub-kind directly in notifType itself — unlike Jobs/Events,
+  // there is no generic 'PROJECT' value. The identical literal is also sent as targetType (both
+  // point at the project id), same shape as the COMMUNITY_* rows above. See ProjectService /
+  // ProjectApplicationService, which pass these literal strings as both notifType and targetType.
+  | 'PROJECT_APPLICATION_RECEIVED'
+  | 'PROJECT_APPLICATION_ACCEPTED'
+  | 'PROJECT_APPLICATION_REJECTED'
+  | 'PROJECT_MEMBER_REMOVED'
 
 /**
  * What `targetId` points at. FOLLOW sends `USER`; LIKE/COMMENT/MENTION send `POST`. Ignoring this
@@ -55,6 +63,12 @@ export type NotifTargetType =
   | 'JOB_APPLICATION_STATUS_CHANGED'
   | 'JOB_CLOSED'
   | 'JOB_FILLED'
+  // Projects sends the identical literal as both notifType and targetType — see the NotifType
+  // union above for why. Present here too since notificationTargetPath switches on targetType.
+  | 'PROJECT_APPLICATION_RECEIVED'
+  | 'PROJECT_APPLICATION_ACCEPTED'
+  | 'PROJECT_APPLICATION_REJECTED'
+  | 'PROJECT_MEMBER_REMOVED'
 
 export interface NotificationResponse {
   id: number
@@ -106,6 +120,11 @@ export function notificationTargetPath(notification: NotificationResponse): stri
     case 'JOB_CLOSED':
     case 'JOB_FILLED':
       return `/jobs/${notification.targetId}`
+    case 'PROJECT_APPLICATION_RECEIVED':
+    case 'PROJECT_APPLICATION_ACCEPTED':
+    case 'PROJECT_APPLICATION_REJECTED':
+    case 'PROJECT_MEMBER_REMOVED':
+      return `/projects/${notification.targetId}`
     default:
       return null
   }
