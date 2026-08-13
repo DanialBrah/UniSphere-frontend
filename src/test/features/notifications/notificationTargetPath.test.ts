@@ -45,4 +45,24 @@ describe('notificationTargetPath', () => {
   it('returns null for an unrecognised target type instead of a broken link', () => {
     expect(notificationTargetPath(notification('SOMETHING_NEW' as NotifTargetType, 5))).toBeNull()
   })
+
+  /**
+   * Events is a real divergence from every other feature here: instead of one stable entity-kind
+   * value (like COMMUNITY or LOST_FOUND_ITEM), the backend puts the notification's *sub-kind* into
+   * targetType — six distinct literal strings, all pointing at an event id via targetId.
+   */
+  it('routes all six Events notification sub-kinds to the event they describe', () => {
+    const eventTargetTypes: NotifTargetType[] = [
+      'EVENT_REGISTRATION_CONFIRMED',
+      'EVENT_REGISTRATION_WAITLISTED',
+      'EVENT_WAITLIST_PROMOTED',
+      'EVENT_CANCELLED',
+      'EVENT_REMINDER',
+      'EVENT_REGISTRATION_REMOVED',
+    ]
+
+    for (const targetType of eventTargetTypes) {
+      expect(notificationTargetPath(notification(targetType, 42))).toBe('/events/42')
+    }
+  })
 })

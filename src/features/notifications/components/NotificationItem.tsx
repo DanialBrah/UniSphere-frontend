@@ -1,6 +1,6 @@
 import {
   Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle,
-  Megaphone, CheckCircle2, XCircle, Shield, type LucideIcon,
+  Megaphone, CheckCircle2, XCircle, Shield, Calendar, type LucideIcon,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
@@ -19,6 +19,7 @@ const TYPE_CONFIG: Partial<Record<NotifType, { icon: LucideIcon; color: string; 
   COMMUNITY_JOIN_APPROVED: { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'approved your join request' },
   COMMUNITY_JOIN_REJECTED: { icon: XCircle,     color: 'text-gray-500',    bg: 'bg-gray-100 dark:bg-gray-800',          label: 'rejected your join request' },
   COMMUNITY_ROLE_CHANGED:  { icon: Shield,      color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'changed your role in a community' },
+  EVENT:                   { icon: Calendar,    color: 'text-primary',     bg: 'bg-primary-100 dark:bg-primary/20',     label: 'sent you an event update' },
 }
 
 // LIKE and COMMENT are emitted for both posts and news articles, so the type alone can't say
@@ -29,8 +30,24 @@ const NEWS_LABEL: Partial<Record<NotifType, string>> = {
   MENTION: 'mentioned you in an article',
 }
 
+// Unlike every other type, Events puts its notification's sub-kind in targetType rather than
+// notifType (which is always the single literal 'EVENT') — so the label has to branch on
+// targetType here instead. actorId is null for the system-originated ones (confirmed/waitlisted/
+// promoted/reminder), which is why that copy is written to read fine after a generic "Someone"
+// actor. EVENT_CANCELLED and EVENT_REGISTRATION_REMOVED are the two with a real human actor — the
+// organizer/admin who cancelled the event or removed the registration.
+const EVENT_LABEL: Partial<Record<NotifTargetType, string>> = {
+  EVENT_REGISTRATION_CONFIRMED: 'confirmed your event registration',
+  EVENT_REGISTRATION_WAITLISTED: 'added you to an event waitlist',
+  EVENT_WAITLIST_PROMOTED: "moved you off the waitlist — you're in",
+  EVENT_REGISTRATION_REMOVED: 'removed your event registration',
+  EVENT_CANCELLED: 'cancelled an event you registered for',
+  EVENT_REMINDER: 'sent you an event reminder',
+}
+
 function labelFor(notifType: NotifType, targetType: NotifTargetType, fallback: string): string {
   if (targetType === 'NEWS_ARTICLE') return NEWS_LABEL[notifType] ?? fallback
+  if (notifType === 'EVENT') return EVENT_LABEL[targetType] ?? fallback
   return fallback
 }
 

@@ -121,10 +121,33 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // /events/new and /events/:eventId/edit both out-rank /events/:eventId because a static
+      // segment beats a dynamic one, regardless of the order they're declared in.
       {
         path: '/events',
         lazy: async () => {
-          const Component = () => <div className="p-6">Events (Coming Soon)</div>
+          const { default: Component } = await import('../features/events/pages/EventsBoardPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/events/new',
+        lazy: async () => {
+          const { default: Component } = await import('../features/events/pages/EventFormPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/events/:eventId',
+        lazy: async () => {
+          const { default: Component } = await import('../features/events/pages/EventDetailPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/events/:eventId/edit',
+        lazy: async () => {
+          const { default: Component } = await import('../features/events/pages/EventFormPage')
           return { Component }
         },
       },

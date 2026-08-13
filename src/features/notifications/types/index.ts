@@ -39,6 +39,16 @@ export type NotifTargetType =
   | 'NEWS_ARTICLE'
   | 'COMMUNITY'
   | 'LOST_FOUND_ITEM'
+  // Events puts the notification's sub-kind here instead of a single stable entity type — every
+  // one of these five points at an event id via targetId. See EventRegistrationService /
+  // EventService.notifyRegistrantsOfCancellation, which pass these literal strings as targetType.
+  | 'EVENT_REGISTRATION_CONFIRMED'
+  | 'EVENT_REGISTRATION_WAITLISTED'
+  | 'EVENT_WAITLIST_PROMOTED'
+  | 'EVENT_CANCELLED'
+  | 'EVENT_REMINDER'
+  // Sent when an organizer/admin removes someone else's registration — EventRegistrationService.cancel.
+  | 'EVENT_REGISTRATION_REMOVED'
 
 export interface NotificationResponse {
   id: number
@@ -78,6 +88,13 @@ export function notificationTargetPath(notification: NotificationResponse): stri
     // claim being decided. /lost-found/claims/:claimId resolves it and forwards to the item.
     case 'LOST_FOUND_ITEM':
       return `/lost-found/claims/${notification.targetId}`
+    case 'EVENT_REGISTRATION_CONFIRMED':
+    case 'EVENT_REGISTRATION_WAITLISTED':
+    case 'EVENT_WAITLIST_PROMOTED':
+    case 'EVENT_CANCELLED':
+    case 'EVENT_REMINDER':
+    case 'EVENT_REGISTRATION_REMOVED':
+      return `/events/${notification.targetId}`
     default:
       return null
   }
