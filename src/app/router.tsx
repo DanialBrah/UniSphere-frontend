@@ -114,10 +114,33 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // /jobs/new and /jobs/:jobId/edit both out-rank /jobs/:jobId because a static segment beats
+      // a dynamic one, regardless of the order they're declared in.
       {
         path: '/jobs',
         lazy: async () => {
-          const Component = () => <div className="p-6">Jobs (Coming Soon)</div>
+          const { default: Component } = await import('../features/jobs/pages/JobsBoardPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/jobs/new',
+        lazy: async () => {
+          const { default: Component } = await import('../features/jobs/pages/JobFormPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/jobs/:jobId',
+        lazy: async () => {
+          const { default: Component } = await import('../features/jobs/pages/JobDetailPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/jobs/:jobId/edit',
+        lazy: async () => {
+          const { default: Component } = await import('../features/jobs/pages/JobFormPage')
           return { Component }
         },
       },

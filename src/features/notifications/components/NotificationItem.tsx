@@ -1,6 +1,6 @@
 import {
   Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle,
-  Megaphone, CheckCircle2, XCircle, Shield, Calendar, type LucideIcon,
+  Megaphone, CheckCircle2, XCircle, Shield, Calendar, Briefcase, type LucideIcon,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
@@ -20,6 +20,7 @@ const TYPE_CONFIG: Partial<Record<NotifType, { icon: LucideIcon; color: string; 
   COMMUNITY_JOIN_REJECTED: { icon: XCircle,     color: 'text-gray-500',    bg: 'bg-gray-100 dark:bg-gray-800',          label: 'rejected your join request' },
   COMMUNITY_ROLE_CHANGED:  { icon: Shield,      color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'changed your role in a community' },
   EVENT:                   { icon: Calendar,    color: 'text-primary',     bg: 'bg-primary-100 dark:bg-primary/20',     label: 'sent you an event update' },
+  JOB:                     { icon: Briefcase,   color: 'text-teal-500',    bg: 'bg-teal-100 dark:bg-teal-900/30',       label: 'sent you a job update' },
 }
 
 // LIKE and COMMENT are emitted for both posts and news articles, so the type alone can't say
@@ -45,9 +46,20 @@ const EVENT_LABEL: Partial<Record<NotifTargetType, string>> = {
   EVENT_REMINDER: 'sent you an event reminder',
 }
 
+// Jobs puts its notification's sub-kind in targetType too (mirrors Events) — notifType is always
+// the single literal 'JOB'. JOB_APPLICATION_RECEIVED goes to the employer; the other three go to
+// the applicant.
+const JOB_LABEL: Partial<Record<NotifTargetType, string>> = {
+  JOB_APPLICATION_RECEIVED: 'applied to your job posting',
+  JOB_APPLICATION_STATUS_CHANGED: 'updated the status of your application',
+  JOB_CLOSED: 'closed a job you applied to',
+  JOB_FILLED: 'marked a job you applied to as filled',
+}
+
 function labelFor(notifType: NotifType, targetType: NotifTargetType, fallback: string): string {
   if (targetType === 'NEWS_ARTICLE') return NEWS_LABEL[notifType] ?? fallback
   if (notifType === 'EVENT') return EVENT_LABEL[targetType] ?? fallback
+  if (notifType === 'JOB') return JOB_LABEL[targetType] ?? fallback
   return fallback
 }
 

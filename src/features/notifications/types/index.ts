@@ -49,6 +49,12 @@ export type NotifTargetType =
   | 'EVENT_REMINDER'
   // Sent when an organizer/admin removes someone else's registration — EventRegistrationService.cancel.
   | 'EVENT_REGISTRATION_REMOVED'
+  // Jobs puts the notification's sub-kind here too (mirrors Events) — always paired with
+  // notifType: "JOB". See JobApplicationService / JobService for the emit sites.
+  | 'JOB_APPLICATION_RECEIVED'
+  | 'JOB_APPLICATION_STATUS_CHANGED'
+  | 'JOB_CLOSED'
+  | 'JOB_FILLED'
 
 export interface NotificationResponse {
   id: number
@@ -95,6 +101,11 @@ export function notificationTargetPath(notification: NotificationResponse): stri
     case 'EVENT_REMINDER':
     case 'EVENT_REGISTRATION_REMOVED':
       return `/events/${notification.targetId}`
+    case 'JOB_APPLICATION_RECEIVED':
+    case 'JOB_APPLICATION_STATUS_CHANGED':
+    case 'JOB_CLOSED':
+    case 'JOB_FILLED':
+      return `/jobs/${notification.targetId}`
     default:
       return null
   }

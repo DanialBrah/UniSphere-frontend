@@ -65,4 +65,21 @@ describe('notificationTargetPath', () => {
       expect(notificationTargetPath(notification(targetType, 42))).toBe('/events/42')
     }
   })
+
+  /**
+   * Jobs follows the same sub-kind-in-targetType pattern Events introduced: notifType is always
+   * the single literal 'JOB', and these four literal strings point at a job id via targetId.
+   */
+  it('routes all four Jobs notification sub-kinds to the job they describe', () => {
+    const jobTargetTypes: NotifTargetType[] = [
+      'JOB_APPLICATION_RECEIVED',
+      'JOB_APPLICATION_STATUS_CHANGED',
+      'JOB_CLOSED',
+      'JOB_FILLED',
+    ]
+
+    for (const targetType of jobTargetTypes) {
+      expect(notificationTargetPath(notification(targetType, 42))).toBe('/jobs/42')
+    }
+  })
 })
