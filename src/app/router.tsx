@@ -218,10 +218,41 @@ export const router = createBrowserRouter([
           return { Component }
         },
       },
+      // /services/new, /services/orders/:orderId and /services/:listingId/edit all out-rank
+      // /services/:listingId because a static segment beats a dynamic one, regardless of the order
+      // they're declared in.
       {
         path: '/services',
         lazy: async () => {
-          const Component = () => <div className="p-6">Services (Coming Soon)</div>
+          const { default: Component } = await import('../features/services/pages/ServicesBoardPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/services/new',
+        lazy: async () => {
+          const { default: Component } = await import('../features/services/pages/ServiceFormPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/services/orders/:orderId',
+        lazy: async () => {
+          const { default: Component } = await import('../features/services/pages/ServiceOrderDetailPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/services/:listingId',
+        lazy: async () => {
+          const { default: Component } = await import('../features/services/pages/ServiceDetailPage')
+          return { Component }
+        },
+      },
+      {
+        path: '/services/:listingId/edit',
+        lazy: async () => {
+          const { default: Component } = await import('../features/services/pages/ServiceFormPage')
           return { Component }
         },
       },

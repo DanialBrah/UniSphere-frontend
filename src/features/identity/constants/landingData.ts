@@ -3,7 +3,7 @@ import {
   Newspaper, Award, Calendar, MapPin, Briefcase,
   FolderKanban, MessageSquare, BookOpen, GraduationCap,
   Search, Bot, Users2, Ticket, Clock, Bus,
-  Building2, Shield,
+  Building2, Shield, Wrench,
 } from 'lucide-react'
 import type { Feature, UserType } from '../types'
 
@@ -19,6 +19,7 @@ export const FEATURES: Feature[] = [
   { icon: MapPin,         title: 'Campus Maps',           description: 'Navigate buildings and venues' },
   { icon: Briefcase,      title: 'Jobs & Internships',    description: 'Career opportunities on campus' },
   { icon: FolderKanban,   title: 'Projects',              description: 'Collaborate and contribute' },
+  { icon: Wrench,         title: 'Services',              description: 'Offer or hire campus services' },
   { icon: MessageSquare,  title: 'Community',             description: 'Discussions and interest groups' },
   { icon: BookOpen,       title: 'Study Sessions',        description: 'Organize group study' },
   { icon: GraduationCap,  title: 'Tutoring',              description: 'Find or offer tutoring' },

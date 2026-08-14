@@ -69,6 +69,19 @@ export type NotifTargetType =
   | 'PROJECT_APPLICATION_ACCEPTED'
   | 'PROJECT_APPLICATION_REJECTED'
   | 'PROJECT_MEMBER_REMOVED'
+  // Services puts the notification's sub-kind here too (mirrors Jobs/Events) — always paired with
+  // notifType: "SERVICE_ORDER". Every one of these seven points at an order id via targetId. See
+  // ServiceOrderService.createOrder/notifyTransition for the emit sites. UPDATED is reserved for
+  // exhaustiveness but currently unreachable — the PENDING branch it would cover always throws
+  // server-side before a notification is sent.
+  | 'SERVICE_ORDER_RECEIVED'
+  | 'SERVICE_ORDER_ACCEPTED'
+  | 'SERVICE_ORDER_STARTED'
+  | 'SERVICE_ORDER_COMPLETED'
+  | 'SERVICE_ORDER_DECLINED'
+  | 'SERVICE_ORDER_CANCELLED'
+  | 'SERVICE_ORDER_DISPUTED'
+  | 'SERVICE_ORDER_UPDATED'
 
 export interface NotificationResponse {
   id: number
@@ -125,6 +138,18 @@ export function notificationTargetPath(notification: NotificationResponse): stri
     case 'PROJECT_APPLICATION_REJECTED':
     case 'PROJECT_MEMBER_REMOVED':
       return `/projects/${notification.targetId}`
+    case 'SERVICE_ORDER_RECEIVED':
+    case 'SERVICE_ORDER_ACCEPTED':
+    case 'SERVICE_ORDER_STARTED':
+    case 'SERVICE_ORDER_COMPLETED':
+    case 'SERVICE_ORDER_DECLINED':
+    case 'SERVICE_ORDER_CANCELLED':
+    case 'SERVICE_ORDER_DISPUTED':
+    case 'SERVICE_ORDER_UPDATED':
+      // Unlike Lost & Found's claim/item mismatch, an order id is a first-class, directly
+      // fetchable resource (GET /services/orders/{id}), so this routes straight there — no
+      // redirect page needed.
+      return `/services/orders/${notification.targetId}`
     default:
       return null
   }

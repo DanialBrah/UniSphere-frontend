@@ -10,6 +10,7 @@ const FEATURE_ROUTES: Record<string, string> = {
   'Jobs & Internships': '/jobs',
   'Events':             '/events',
   'Projects':           '/projects',
+  'Services':           '/services',
   'Study Sessions':     '/study',
   'Tutoring':           '/tutors',
   'Lost & Found':       '/lost-found',

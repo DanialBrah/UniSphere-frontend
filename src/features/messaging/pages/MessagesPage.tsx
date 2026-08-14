@@ -48,10 +48,6 @@ export default function MessagesPage() {
     markRead({ conversationId: activeConversationId, lastReadMessageId: lastMessageId })
   }, [activeConversationId, lastMessageId, markRead])
 
-  useEffect(() => {
-    return () => { setActive(null) }
-  }, [setActive])
-
   if (!user) return null
 
   const handleSend = (content: string) => {

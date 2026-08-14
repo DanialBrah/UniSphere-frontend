@@ -82,4 +82,26 @@ describe('notificationTargetPath', () => {
       expect(notificationTargetPath(notification(targetType, 42))).toBe('/jobs/42')
     }
   })
+
+  /**
+   * Services follows the same sub-kind-in-targetType pattern as Jobs/Events, but — unlike Lost &
+   * Found's claim/item mismatch — targetId here really is the order's own id, a first-class,
+   * directly-fetchable resource, so this routes straight there with no redirect indirection.
+   */
+  it('routes all eight Services order notification sub-kinds to the order they describe', () => {
+    const serviceOrderTargetTypes: NotifTargetType[] = [
+      'SERVICE_ORDER_RECEIVED',
+      'SERVICE_ORDER_ACCEPTED',
+      'SERVICE_ORDER_STARTED',
+      'SERVICE_ORDER_COMPLETED',
+      'SERVICE_ORDER_DECLINED',
+      'SERVICE_ORDER_CANCELLED',
+      'SERVICE_ORDER_DISPUTED',
+      'SERVICE_ORDER_UPDATED',
+    ]
+
+    for (const targetType of serviceOrderTargetTypes) {
+      expect(notificationTargetPath(notification(targetType, 42))).toBe('/services/orders/42')
+    }
+  })
 })

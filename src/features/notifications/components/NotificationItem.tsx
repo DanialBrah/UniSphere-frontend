@@ -1,6 +1,6 @@
 import {
   Bell, Heart, MessageSquare, AtSign, UserPlus, UserCircle,
-  Megaphone, CheckCircle2, XCircle, Shield, Calendar, Briefcase, FolderKanban, UserMinus,
+  Megaphone, CheckCircle2, XCircle, Shield, Calendar, Briefcase, FolderKanban, UserMinus, Handshake,
   type LucideIcon,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -22,6 +22,7 @@ const TYPE_CONFIG: Partial<Record<NotifType, { icon: LucideIcon; color: string; 
   COMMUNITY_ROLE_CHANGED:  { icon: Shield,      color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'changed your role in a community' },
   EVENT:                   { icon: Calendar,    color: 'text-primary',     bg: 'bg-primary-100 dark:bg-primary/20',     label: 'sent you an event update' },
   JOB:                     { icon: Briefcase,   color: 'text-teal-500',    bg: 'bg-teal-100 dark:bg-teal-900/30',       label: 'sent you a job update' },
+  SERVICE_ORDER:           { icon: Handshake,   color: 'text-amber-500',   bg: 'bg-amber-100 dark:bg-amber-900/30',     label: 'sent you a service order update' },
   // Unlike Jobs/Events, Projects puts its sub-kind directly in notifType — same idiom as the
   // COMMUNITY_* rows above, so each gets its own direct entry rather than a targetType branch.
   PROJECT_APPLICATION_RECEIVED: { icon: FolderKanban, color: 'text-teal-500',    bg: 'bg-teal-100 dark:bg-teal-900/30',       label: 'applied to join your project' },
@@ -63,10 +64,24 @@ const JOB_LABEL: Partial<Record<NotifTargetType, string>> = {
   JOB_FILLED: 'marked a job you applied to as filled',
 }
 
+// Services puts its notification's sub-kind in targetType too (mirrors Jobs/Events) — notifType is
+// always the single literal 'SERVICE_ORDER'. RECEIVED goes to the provider; the rest go to whichever
+// party didn't trigger the transition (see ServiceOrderService.notifyTransition).
+const SERVICE_ORDER_LABEL: Partial<Record<NotifTargetType, string>> = {
+  SERVICE_ORDER_RECEIVED: 'requested your service',
+  SERVICE_ORDER_ACCEPTED: 'accepted your service order',
+  SERVICE_ORDER_STARTED: 'started work on your service order',
+  SERVICE_ORDER_COMPLETED: 'marked your service order complete',
+  SERVICE_ORDER_DECLINED: 'declined your service order',
+  SERVICE_ORDER_CANCELLED: 'cancelled a service order',
+  SERVICE_ORDER_DISPUTED: 'disputed a service order',
+}
+
 function labelFor(notifType: NotifType, targetType: NotifTargetType, fallback: string): string {
   if (targetType === 'NEWS_ARTICLE') return NEWS_LABEL[notifType] ?? fallback
   if (notifType === 'EVENT') return EVENT_LABEL[targetType] ?? fallback
   if (notifType === 'JOB') return JOB_LABEL[targetType] ?? fallback
+  if (notifType === 'SERVICE_ORDER') return SERVICE_ORDER_LABEL[targetType] ?? fallback
   return fallback
 }
 

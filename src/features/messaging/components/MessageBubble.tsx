@@ -13,6 +13,20 @@ export function MessageBubble({ message, isOwn, onDelete }: Props) {
     : message.createdAt + 'Z'
   const time = formatDistanceToNow(new Date(ts), { addSuffix: true })
 
+  // A SYSTEM message (e.g. a Services order-request summary) is an announcement, not something
+  // its `senderId` "said" — render it as a centered, unattributed notice instead of falling
+  // through to the normal own/other bubble, which would misleadingly put it in quotes from
+  // whichever party triggered it.
+  if (message.msgType === 'SYSTEM') {
+    return (
+      <div className="flex w-full justify-center">
+        <span className="max-w-[80%] rounded-full bg-gray-100 px-3 py-1.5 text-center text-xs text-gray-500 dark:bg-white/5 dark:text-gray-400">
+          {message.content}
+        </span>
+      </div>
+    )
+  }
+
   const initials = message.senderName
     .split(' ')
     .map((w) => w[0])
